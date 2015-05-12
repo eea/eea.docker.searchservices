@@ -1,0 +1,58 @@
+eeasearch:
+    restart: always
+    image: eeacms/eeasearch
+    links:
+        - esclient
+    ports:
+        - 3000:3000 # Take up host 3000 port
+    environment:
+        - elastic_host=esclient
+        - SYNC_CRONTAB=30 * * * * # Sync every 30 minutes
+
+## ES Simple cluster with dedicated nodes
+esmaster:
+    restart: always
+    image: eeacms/elastic:1.5.1-1.5.6
+    command: # No data, no http, no river, can be master
+        - elasticsearch
+        - -Des.cluster.name="SearchServices"
+        - -Des.node.data=false
+        - -Des.http.enabled=false
+        - -Des.node.master=true
+        - -Des.node.river=_none_
+
+esclient:
+    restart: always
+    image: eeacms/elastic:1.5.1-1.5.6
+    command: # No data, http, no river, can't be master
+        - elasticsearch
+        - -Des.cluster.name="SearchServices"
+        - -Des.node.data=false
+        - -Des.http.enabled=true
+        - -Des.node.master=false
+        - -Des.node.river=_none_
+    ports:
+        - 9200:9200
+
+## Explicit adding of workers as there have to be at least two initial shards
+# Do not perform docker scale over these containers as
+# shards will get lost
+esworker1:
+    restart: always
+    image: eeacms/elastic:1.5.1-1.5.6
+    command: # Data, no http, river, can't be master
+        - elasticsearch
+        - -Des.cluster.name="SearchServices"
+        - -Des.node.data=true
+        - -Des.http.enabled=false
+        - -Des.node.master=false
+
+esworker2:
+    restart: always
+    image: eeacms/elastic:1.5.1-1.5.6
+    command: # Data, no http, river, can't be master
+        - elasticsearch
+        - -Des.cluster.name="SearchServices"
+        - -Des.node.data=true
+        - -Des.http.enabled=false
+        - -Des.node.master=false

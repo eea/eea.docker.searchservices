@@ -1,0 +1,58 @@
+## Development docker-compose.yml
+# Change the image tags to latest or other version if
+# you don't want to use local builds of the images
+# Follow README.md to build local images
+
+eeasearch:
+    image: eeacms/eeasearch:dev # Work with dev built eeasarch app
+    links:
+        - esclient
+    ports:
+        - 3000:3000 # Take up host 3000 port for staging only
+    environment:
+        - elastic_host=esclient
+        #- SYNC_CRONTAB=30 * * * * # Disable sync for dev
+
+## ES Simple cluster with dedicated nodes
+esmaster:
+    image: eeacms/elastic:dev
+    command: # No data, no http, no river, can be master
+        - elasticsearch
+        - -Des.cluster.name="SearchServices"
+        - -Des.node.data=false
+        - -Des.http.enabled=false
+        - -Des.node.master=true
+        - -Des.node.river=_none_
+
+esclient:
+    image: eeacms/elastic:dev
+    command: # No data, http, no river, can't be master
+        - elasticsearch
+        - -Des.cluster.name="SearchServices"
+        - -Des.node.data=false
+        - -Des.http.enabled=true
+        - -Des.node.master=false
+        - -Des.node.river=_none_
+    ports:
+        - 9200:9200
+
+## Explicit adding of workers as there have to be at least two initial shards
+# Do not perform docker scale over these containers as
+# shards will get lost
+esworker1:
+    image: eeacms/elastic:dev
+    command: # Data, no http, river, can't be master
+        - elasticsearch
+        - -Des.cluster.name="SearchServices"
+        - -Des.node.data=true
+        - -Des.http.enabled=false
+        - -Des.node.master=false
+
+esworker2:
+    image: eeacms/elastic:dev
+    command: # Data, no http, river, can't be master
+        - elasticsearch
+        - -Des.cluster.name="SearchServices"
+        - -Des.node.data=true
+        - -Des.http.enabled=false
+        - -Des.node.master=false
