@@ -1,5 +1,4 @@
 eeasearch:
-    restart: always
     image: eeacms/eeasearch
     links:
         - esclient
@@ -11,7 +10,6 @@ eeasearch:
 
 ## ES Simple cluster with dedicated nodes
 esmaster:
-    restart: always
     image: eeacms/elastic:1.5.1-1.5.6
     command: # No data, no http, no river, can be master
         - elasticsearch
@@ -22,7 +20,6 @@ esmaster:
         - -Des.node.river=_none_
 
 esclient:
-    restart: always
     image: eeacms/elastic:1.5.1-1.5.6
     command: # No data, http, no river, can't be master
         - elasticsearch
@@ -38,7 +35,6 @@ esclient:
 # Do not perform docker scale over these containers as
 # shards will get lost
 esworker1:
-    restart: always
     image: eeacms/elastic:1.5.1-1.5.6
     command: # Data, no http, river, can't be master
         - elasticsearch
@@ -46,9 +42,17 @@ esworker1:
         - -Des.node.data=true
         - -Des.http.enabled=false
         - -Des.node.master=false
+    volumes_from:
+        - dataw1
+
+## Data is persistent by default for the containers but explicit data
+# containers are needed for automated backup operations
+dataw1:
+    image: busybox
+    volumes:
+        - /usr/share/elasticsearch/data
 
 esworker2:
-    restart: always
     image: eeacms/elastic:1.5.1-1.5.6
     command: # Data, no http, river, can't be master
         - elasticsearch
@@ -56,3 +60,9 @@ esworker2:
         - -Des.node.data=true
         - -Des.http.enabled=false
         - -Des.node.master=false
+    volumes_from:
+        - dataw2
+dataw2:
+    image: busybox
+    volumes:
+        - /usr/share/elasticsearch/data
