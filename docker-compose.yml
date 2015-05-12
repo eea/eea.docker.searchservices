@@ -1,5 +1,9 @@
+
+## Restart always will make management commands never exit and leave
+# zombie containers
 eeasearch:
     image: eeacms/eeasearch
+    restart: on-error:10
     links:
         - esclient
     ports:
@@ -11,6 +15,7 @@ eeasearch:
 ## ES Simple cluster with dedicated nodes
 esmaster:
     image: eeacms/elastic:1.5.1-1.5.6
+    restart: always
     command: # No data, no http, no river, can be master
         - elasticsearch
         - -Des.cluster.name="SearchServices"
@@ -21,6 +26,7 @@ esmaster:
 
 esclient:
     image: eeacms/elastic:1.5.1-1.5.6
+    restart: always
     command: # No data, http, no river, can't be master
         - elasticsearch
         - -Des.cluster.name="SearchServices"
@@ -36,6 +42,7 @@ esclient:
 # shards will get lost
 esworker1:
     image: eeacms/elastic:1.5.1-1.5.6
+    restart: always
     command: # Data, no http, river, can't be master
         - elasticsearch
         - -Des.cluster.name="SearchServices"
@@ -54,6 +61,7 @@ dataw1:
 
 esworker2:
     image: eeacms/elastic:1.5.1-1.5.6
+    restart: always
     command: # Data, no http, river, can't be master
         - elasticsearch
         - -Des.cluster.name="SearchServices"
