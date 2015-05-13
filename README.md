@@ -225,7 +225,7 @@ If you want to build the development image using the local `eea.elasticsearch.ri
 > For this step you'll need maven
 
 If you want to build a development image using the production setup and the public
-`eea.elasticsearch.river.rdf` plugin available [here](), run:
+`eea.elasticsearch.river.rdf` plugin available [here](https://github.com/eea/eea.elasticsearch.river.rdf/releases), run:
 
 ``` bash
 docker build -t eeacms/elastic:dev .
@@ -237,6 +237,19 @@ docker build -t eeacms/elastic:dev .
 
 #### 3.5 Run everything on your host
 
+``` bash
+cd ~/eea.es/eea.docker.searchservices/
+cp docker-compose.dev.yml.example docker-compose.dev.yml
+```
+
+Edit docker-compose.dev.yml to fit your test case. 
+
+Run ```docker-compose -f docker-compose.dev.yml up``` to start all services.
+
+Run ```docker-compose -f docker-compose.dev.yml eeasearch create_index``` to create the index
+
+Wait a bit and go to http://localhost:3000 then make yourself a coffee, everything works now.
+
 ## 4. Publishing changes and updating Docker Registry images
 
 Assuming you have tested locally and implemented the needed features, depending on the code
@@ -245,10 +258,48 @@ you changed, perform the following steps to make the changes available in Docker
 > You can also use repo specific docker-compose.yml files if the changes affect only a part of the stack.
 
 #### 3.1. eea.searchserver.js
+__Note:__ make sure that all the applications using this package work with your new changes
+before publishing anything.
+
+First, you need to publish the new version of the package.
+* Open package.json and increment the version
+* Make sure you can publish to [the npm package](https://www.npmjs.com/package/eea-searchserver)
+ * Contact @demarant or @mihaibivol to add you as a contributor it's the first time publishing
+* Run `npm register` and register with your credentials
+* Run `npm publish` and make sure that no error was encountered
+* Commit your changes
+
+> ```npm publish``` may fail if you are using an older version. Run ```npm install npm``` to upgrade.
+
+This repository will not automatically build the eeacms/eeasearch (and other apps) Docker images.
+* Go to https://registry.hub.docker.com/u/eeacms/eeasearch/ and trigger a build.
+* Wait for the build to complete
+* Perform [these](#23-performing-production-updates) steps to deploy
 
 #### 3.2. eea.elasticsearch.river.rdf
+__Note:__ make sure that all the applications using the river work with your new changes
+before publishing anything.
 
-#### 3.3. eea.docker.elastic
+First, you need to add a new release of the river.
+* Open pom.xml and increment the version
+* Run ```mvn clean install``` to make a new build
+* Commit your changes
+* Go to the [releases tab](https://github.com/eea/eea.elasticsearch.river.rdf/releases)
+* Click on draft a new release
+* Fill in the tag version and release name as the version you added in pom.xml
+  __This is needed because the Dockerfile expects this naming scheme__
+* Attach `eea.elasticsearch.river.rdf/target/releases/eea-rdf-river-plugin-version.zip` as a binary release
+* Complete the release
 
-#### 3.4. eea.docker.eeasearch
+This repository will not automatically build the eeacms/elastic Docker images.
+* Go to https://registry.hub.docker.com/u/eeacms/elastic/ and trigger a build.
+* Current naming scheme for the tags is $ES_VERSION-$RIVER_VERSION
+* Wait for the build to complete
+* Perform [these](#23-performing-production-updates) steps to deploy
 
+
+#### 3.3. eea.docker.elastic and eea.docker.eeasearch
+
+Pushing to master will automatically trigger a build with the :latest tag.
+Make sure that you are building with the correct tags and wait for the builds
+to complete bofore performing [these](#23-performing-production-updates) steps.
