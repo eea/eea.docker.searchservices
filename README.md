@@ -123,22 +123,22 @@ Maintaining a more complex ElasticSearch Cluster means distributing it over more
 careful operations for scaling so data is not lost.
 __Just don't do docker scale over elastic nodes.__
 
-## 2. Clean Development setup
+## 3. Clean Development setup
 Perform this steps to be able to easily make changes to any of the EEA maintained
 parts of this stack.
 
-#### 2.1. Prerequisites
+#### 3.1 Prerequisites
 * bash :)
 * git :)
 * maven (for building the EEA RDF River plugin) ```sudo apt-get install maven``` and a Java environment
-* npm and node (for building and publishing the base node.js webapp module)
- * Follow these steps to install the needed versions on a Debian based system
+* npm (>= 2.8.4) for building and publishing the base node.js webapp module
+ * Follow these steps to install the needed versions on a Debian based system [TODO]
 * Docker (>=1.5) and docker-compose (>=1.1.0)
- * Follow these steps to install them
+ * Follow these steps to install them [TODO]
  * To easily run the commands ad your user into the docker group and re-login for
    the changes to take effect.
 
-#### 2.2. Create a separate work directory in your home directory (or somewhere else)
+#### 3.2 Create a separate work directory in your home directory (or somewhere else)
 
 ``` bash
 user@host ~ $ mkdir eea.es
@@ -146,55 +146,103 @@ user@host ~ $ cd eea.es
 user@host ~/eea.es/ $ 
 ```
 
-#### 2.3. Clone all the components of the stack
-##### 2.3.1. This repository
+#### 3.3 Clone all the components of the stack
+##### 3.3.1 This repository
 This repository glues together all the components of the stack and also
 offers a template for a development docker-compose file.
 
 ``` bash
-user@host ~/eea.es/ $ git clone
+user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.searchservices.git
 ```
 
-##### 2.3.2. EEAsearch web application
+##### 3.3.2 EEAsearch web application
 This repository contains a dockerized Node.js app that stands
 as a frontend for the Elasticsearch cluster defined in eea.docker.searchservices
 
 ``` bash
-user@host ~/eea.es/ $ git clone
+user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.eeasearch.git
 ```
 
-##### 2.3.NaN [TODO] every other Dockerized frontend
-These apps will be dockerized soon.
 
-##### 2.3.3. Node.js eea.searchserver package
+##### 3.3.3 Node.js eea.searchserver package
 This repository contains a Node.js module that contains
 all the shared logic needed by elasticsearch frontend webapps.
 
 ``` bash
-user@host ~/eea.es/ $ git clone
+user@host ~/eea.es/ $ git clone git@github.com:eea/eea.searchserver.js.git
 ```
 
-##### 2.3.4. Elastic[Search] Dockerized repo
+##### 3.3.4 Elastic[Search] Dockerized repo
 This repository builds a Docker image of Elastic (former ElasticSearch) containing
 the RDF River Plugin and the Analysis ICU plugin
 
 ``` bash
-user@host ~/eea.es/ $ git clone
+user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.elastic.git
 ```
 
-##### 2.3.5. EEA RDF River Plugin
+##### 3.3.5 EEA RDF River Plugin
 This repository builds the Java RDF River plugin needed by
 elasticsearch in order to harvest data from SPARQL endpoints
 
 ``` bash
-user@host ~/eea.es/ $ git clone
+user@host ~/eea.es/ $ git clone git@github.com:eea/eea.elasticsearch.river.rdf.git
 ```
 
-#### 2.4. Build the development images
+#### 3.4 Build the development images
 
-#### 2.5. Run everything on your host
+Follow these steps to build local Docker images using the local repositories you just cloned.
 
-## 3. Publishing changes and updating Docker Registry images
+##### 3.4.1 eeacms/eeasearch:dev
+
+``` bash
+cd ~/eea.es/eea.docker.eeasearch/
+```
+
+If you want to build the development image using the local `eea.searcherver.js` code, run:
+
+``` bash
+./build_dev.sh ../eea.searchserver.js # uses Dockerfile.dev and adds local code into the image
+```
+
+If you want to build a development image using the production setup and the public
+`eea.searchserver.js` npm package available [here](https://www.npmjs.com/package/eea-searchserver), run:
+
+``` bash
+docker build -t eeacms/eeasearch:dev .
+```
+
+##### 3.4.2 eeacms/elastic:dev
+
+``` bash
+cd ~/eea.es/eea.docker.elastic/
+```
+
+If you want to build the development image using the local `eea.elasticsearch.river.rdf` code, run:
+``` bash
+./build_dev.sh ../eea.elasticsearch.river.rdf # uses Dockerfile.dev and adds local code into the image
+```
+
+> For this step you'll need maven
+
+If you want to build a development image using the production setup and the public
+`eea.elasticsearch.river.rdf` plugin available [here](), run:
+
+``` bash
+docker build -t eeacms/elastic:dev .
+```
+---
+> __Always__ use the :dev tag, as you need to delete the image in order to pull
+> the official :latest image available on Docker Registry. Not using :dev tag
+> increases the risk of running with some image on production and another locally.
+
+#### 3.5 Run everything on your host
+
+## 4. Publishing changes and updating Docker Registry images
+
+Assuming you have tested locally and implemented the needed features, depending on the code
+you changed, perform the following steps to make the changes available in Docker Registry.
+
+> You can also use repo specific docker-compose.yml files if the changes affect only a part of the stack.
 
 #### 3.1. eea.searchserver.js
 
