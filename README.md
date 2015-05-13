@@ -1,0 +1,206 @@
+# eea.docker.searchservices
+ElasticSearch + Facetview complete Docker Stack Orchestration
+
+### 1. Components
+
+__1.1 eeasearch__
+[[repo]](https://github.com/eea/eea.docker.eeasearch), [[docker]](https://registry.hub.docker.com/u/eeacms/eeasearch/) -
+Node.js frontend to an ElasticSearch cluster
+* This container listens on port 3000 and provides a __readonly__ API endpoint to the elasticsearch cluster.
+* The rendering is done by using jquery.facetview.js
+* The base image has support for automatic sync jobs and for running index management commands
+  
+> More details on the [source repository](https://github.com/eea/eea.docker.eeasearch)
+  
+__1.2 esmaster__
+[[repo]](https://github.com/eea/eea.docker.elastic), [[docker]](https://registry.hub.docker.com/u/eeacms/elastic/) -
+Elastic master configurated node
+* This node can't do anything besides cluster management. Thus, it has a low chance of getting shut down.
+
+__1.3 esclient__
+[[repo]](https://github.com/eea/eea.docker.elastic) [[docker]](https://registry.hub.docker.com/u/eeacms/elastic/) -
+Elastic HTTP client configured node
+
+* This node is the only one that can __accept__, __parse__, __scatter__ and __gather__ HTTP query requests.
+* The actual work is being performed by the esworkers
+  
+__1.4 esworker__ 
+[[repo]](https://github.com/eea/eea.docker.elastic), [[docker]](https://registry.hub.docker.com/u/eeacms/elastic/) -
+Elastic Data storage nodes
+
+* __Two__ configurated nodes for data replication.
+* These nodes hold the data and execute the actual queries received from the esclient.
+* In addition, these are the only nodes that can run the River process. Thus, if the river process
+  brings down the node (e.g. consumes too much memory), the other node will be able to serve the
+  data.
+  
+__1.5 dataw[1|2]__ - Data Volume Containers
+* Lightweight containers holding the data stored in the workers.
+* These containers make the data easy to backup and be restored independent of the esworker container's faith.
+  
+> * More information about elasticsearch node roles can be found [here](http://www.elastic.co/guide/en/elasticsearch/reference/1.5/modules-node.html)
+> * More information about elasticsearch node discovery can be found [here](http://www.elastic.co/guide/en/elasticsearch/reference/1.5/modules-discovery.html)
+
+### 2. Deployment tips
+#### 2.1 Getting the latest release up and running for the first time
+
+``` bash
+git clone https://github.com/eea/eea.docker.searchservices
+cd eea.docker.searchservices
+docker-compose up -d
+# Wait a while for the elastic cluster to get initialized
+# Start indexing data
+docker-compose run --rm eeasearch create_index
+# Go to this host:3000 to see that data is being harvested
+```
+
+#### 2.2 Persistent data
+
+The data is kept persistent by using two explicit data containers.
+The data is mounted in ```/usr/share/elasticsearch/data```
+Follow te steps from the "Backup, restore, or migrate data volumes" section
+in the [Docker documentation](https://docs.docker.com/userguide/dockervolumes/)
+
+#### 2.3 Performing production updates
+
+Change the tags in this repo to match the image version you want to
+upgrade to. Then, push the changes on this repo.
+On the host runnig this compose-file do:
+
+``` bash
+git pull origin master # and get the docker-compose.yml containing the latests tags
+# Before this step you should backup the data containers if the update procedure fails
+docker-compose pull    # get the images and their tags
+docker-compose stop    # stop the running containers
+docker-compose start -d # start the running containers
+```
+
+#### 2.4 Running index management scripts from your office :)
+
+Given a webapp and the fact that you can access __esclient__ from your office you can
+reindex the data or force a sync using this command.
+
+Assuming that __esclient:9200__ is available at `http://some-staging:80/elasticsearch/` and
+you have permission to perform PUT POST and DELETE over that endpoint from your office, you can run
+this oneliner to reindex the data from a given app.
+
+```
+docker run --rm -e elastic_host=some-staging -e elastic_path=/elasticsearch/ -e elastic_port=80 eeacms/eeasearch reindex
+```
+
+To see a list of all available commands run:
+```
+docker run --rm -e elastic_host=some-staging -e elastic_path=/elasticsearch/ -e elastic_port=80 eeacms/eeasearch help
+```
+
+> By default `elastic_path` is `/` and `elastic_port` is `9200`. So you can omit them if __esclient__ is accessible
+> on port `9200` at path `/`.
+
+#### 2.5 A note about scaling
+TL;DR - it won't work with docker-compose scale because
+the overhead is in worker nodes which need additional ops to be scaled.
+
+By default, ElasticSearch breaks an index into 5 shards (holding different parts of the data). Each shard
+will have one replica. If we have 4 workers with this setup, then shards could be distributed as such:
+* Node1: Shard 0 Primary, Shard 1 Replia, Shard 3 Primary
+* Node2: Shard 0 Replica, Shard 1 Primary, Shard 2 Primary
+* Node3: Shard 4 Replica, Shard 3 Replica
+* Node4: Shard 4 Primary, Shard 2 Replica
+
+If Node3 and Node4 are scaled down, Shard 4 will get lost and it would be hard to recover.
+
+* Scaling up will not automatically move shards to other nodes in order to better distribute the jobs.
+
+* Scaling down will not move shards to remaining nodes to keep availability.
+
+* Running on the same host would increase the number of parallel disk accesses which can trash the cache, resulting
+in poor performance.
+
+* Worker nodes perform most of the work. If something runs slow it's a high change that something is taking too long
+on the workers, not the client or the master.
+
+Maintaining a more complex ElasticSearch Cluster means distributing it over more hosts and performing
+careful operations for scaling so data is not lost.
+__Just don't do docker scale over elastic nodes.__
+
+## 2. Clean Development setup
+Perform this steps to be able to easily make changes to any of the EEA maintained
+parts of this stack.
+
+#### 2.1. Prerequisites
+* bash :)
+* git :)
+* maven (for building the EEA RDF River plugin) ```sudo apt-get install maven``` and a Java environment
+* npm and node (for building and publishing the base node.js webapp module)
+ * Follow these steps to install the needed versions on a Debian based system
+* Docker (>=1.5) and docker-compose (>=1.1.0)
+ * Follow these steps to install them
+ * To easily run the commands ad your user into the docker group and re-login for
+   the changes to take effect.
+
+#### 2.2. Create a separate work directory in your home directory (or somewhere else)
+
+``` bash
+user@host ~ $ mkdir eea.es
+user@host ~ $ cd eea.es
+user@host ~/eea.es/ $ 
+```
+
+#### 2.3. Clone all the components of the stack
+##### 2.3.1. This repository
+This repository glues together all the components of the stack and also
+offers a template for a development docker-compose file.
+
+``` bash
+user@host ~/eea.es/ $ git clone
+```
+
+##### 2.3.2. EEAsearch web application
+This repository contains a dockerized Node.js app that stands
+as a frontend for the Elasticsearch cluster defined in eea.docker.searchservices
+
+``` bash
+user@host ~/eea.es/ $ git clone
+```
+
+##### 2.3.NaN [TODO] every other Dockerized frontend
+These apps will be dockerized soon.
+
+##### 2.3.3. Node.js eea.searchserver package
+This repository contains a Node.js module that contains
+all the shared logic needed by elasticsearch frontend webapps.
+
+``` bash
+user@host ~/eea.es/ $ git clone
+```
+
+##### 2.3.4. Elastic[Search] Dockerized repo
+This repository builds a Docker image of Elastic (former ElasticSearch) containing
+the RDF River Plugin and the Analysis ICU plugin
+
+``` bash
+user@host ~/eea.es/ $ git clone
+```
+
+##### 2.3.5. EEA RDF River Plugin
+This repository builds the Java RDF River plugin needed by
+elasticsearch in order to harvest data from SPARQL endpoints
+
+``` bash
+user@host ~/eea.es/ $ git clone
+```
+
+#### 2.4. Build the development images
+
+#### 2.5. Run everything on your host
+
+## 3. Publishing changes and updating Docker Registry images
+
+#### 3.1. eea.searchserver.js
+
+#### 3.2. eea.elasticsearch.river.rdf
+
+#### 3.3. eea.docker.elastic
+
+#### 3.4. eea.docker.eeasearch
+
