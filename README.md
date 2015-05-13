@@ -51,6 +51,10 @@ docker-compose up -d
 # Wait a while for the elastic cluster to get initialized
 # Start indexing data
 docker-compose run --rm eeasearch create_index
+# Check the logs
+docker-compose logs
+# If the river is not indexing just perform a couple of reindex commands
+docker-compose run --rm eeasearch reindex
 # Go to this host:3000 to see that data is being harvested
 ```
 
