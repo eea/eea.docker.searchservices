@@ -250,7 +250,7 @@ Edit docker-compose.dev.yml to fit your test case.
 
 Run ```docker-compose -f docker-compose.dev.yml up``` to start all services.
 
-Run ```docker-compose -f docker-compose.dev.yml eeasearch create_index``` to create the index
+Run ```docker-compose -f docker-compose.dev.yml run eeasearch create_index``` to create the index
 
 Wait a bit and go to http://localhost:3000 then make yourself a coffee, everything works now.
 
