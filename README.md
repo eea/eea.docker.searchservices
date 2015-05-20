@@ -296,9 +296,9 @@ Edit docker-compose.dev.yml to fit your test case.
 
 Run ```docker-compose -f docker-compose.dev.yml up``` to start all services.
 
-Run ```docker-compose -f docker-compose.dev.yml eeasearch create_index``` to create the index for EEASearch
+Run ```docker-compose -f docker-compose.dev.yml run eeasearch create_index``` to create the index for EEASearch
 
-Run ```docker-compose -f docker-compose.dev.yml pam create_index``` to create the index for PAM
+Run ```docker-compose -f docker-compose.dev.yml run pam create_index``` to create the index for PAM
 
 Wait a bit and go to http://localhost:3000 and http://localhost:3010 then make yourself a coffee, everything works now.
 
