@@ -12,6 +12,15 @@ Node.js frontend to an ElasticSearch cluster
   
 > More details on the [source repository](https://github.com/eea/eea.docker.eeasearch)
   
+__1.2 pam__
+[[repo]](https://github.com/eea/eea.docker.pam),  -
+Node.js frontend to an ElasticSearch cluster
+* This container listens on port 3010 and provides a __readonly__ API endpoint to the elasticsearch cluster.
+* The rendering is done by using jquery.facetview.js
+* The base image has support for running index management commands
+
+> More details on the [source repository](https://github.com/eea/eea.docker.pam)
+
 __1.2 esmaster__
 [[repo]](https://github.com/eea/eea.docker.elastic), [[docker]](https://registry.hub.docker.com/u/eeacms/elastic/) -
 Elastic master configurated node
@@ -56,6 +65,15 @@ docker-compose logs
 # If the river is not indexing just perform a couple of reindex commands
 docker-compose run --rm eeasearch reindex
 # Go to this host:3000 to see that data is being harvested
+# And the same for PAM
+# Start indexing data
+docker-compose run --rm pam create_index
+# Check the logs
+docker-compose logs
+# If the river is not indexing just perform a couple of reindex commands
+docker-compose run --rm pam reindex
+# Go to this host:3010 to see that data is being harvested
+
 ```
 
 #### 2.2 Persistent data
@@ -168,7 +186,16 @@ user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.eeasearch.git
 ```
 
 
-##### 3.3.3 Node.js eea.searchserver package
+##### 3.3.3 PAM web application
+This repository contains a dockerized Node.js app that stands
+as a frontend for the Elasticsearch cluster defined in eea.docker.searchservices
+
+``` bash
+user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.pam.git
+```
+
+
+##### 3.3.4 Node.js eea.searchserver package
 This repository contains a Node.js module that contains
 all the shared logic needed by elasticsearch frontend webapps.
 
@@ -176,7 +203,7 @@ all the shared logic needed by elasticsearch frontend webapps.
 user@host ~/eea.es/ $ git clone git@github.com:eea/eea.searchserver.js.git
 ```
 
-##### 3.3.4 Elastic[Search] Dockerized repo
+##### 3.3.5 Elastic[Search] Dockerized repo
 This repository builds a Docker image of Elastic (former ElasticSearch) containing
 the RDF River Plugin and the Analysis ICU plugin
 
@@ -184,7 +211,7 @@ the RDF River Plugin and the Analysis ICU plugin
 user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.elastic.git
 ```
 
-##### 3.3.5 EEA RDF River Plugin
+##### 3.3.6 EEA RDF River Plugin
 This repository builds the Java RDF River plugin needed by
 elasticsearch in order to harvest data from SPARQL endpoints
 
@@ -215,7 +242,26 @@ If you want to build a development image using the production setup and the publ
 docker build -t eeacms/eeasearch:dev .
 ```
 
-##### 3.4.2 eeacms/elastic:dev
+##### 3.4.2 eeacms/pam:dev
+
+``` bash
+cd ~/eea.es/eea.docker.pam/
+```
+
+If you want to build the development image using the local `eea.searcherver.js` code, run:
+
+``` bash
+./build_dev.sh ../eea.searchserver.js # uses Dockerfile.dev and adds local code into the image
+```
+
+If you want to build a development image using the production setup and the public
+`eea.searchserver.js` npm package available [here](https://www.npmjs.com/package/eea-searchserver), run:
+
+``` bash
+docker build -t eeacms/pam:dev .
+```
+
+##### 3.4.3 eeacms/elastic:dev
 
 ``` bash
 cd ~/eea.es/eea.docker.elastic/
@@ -250,9 +296,11 @@ Edit docker-compose.dev.yml to fit your test case.
 
 Run ```docker-compose -f docker-compose.dev.yml up``` to start all services.
 
-Run ```docker-compose -f docker-compose.dev.yml eeasearch create_index``` to create the index
+Run ```docker-compose -f docker-compose.dev.yml eeasearch create_index``` to create the index for EEASearch
 
-Wait a bit and go to http://localhost:3000 then make yourself a coffee, everything works now.
+Run ```docker-compose -f docker-compose.dev.yml pam create_index``` to create the index for PAM
+
+Wait a bit and go to http://localhost:3000 and http://localhost:3010 then make yourself a coffee, everything works now.
 
 ## 4. Publishing changes and updating Docker Registry images
 
@@ -261,7 +309,7 @@ you changed, perform the following steps to make the changes available in Docker
 
 > You can also use repo specific docker-compose.yml files if the changes affect only a part of the stack.
 
-#### 3.1. eea.searchserver.js
+#### 4.1. eea.searchserver.js
 __Note:__ make sure that all the applications using this package work with your new changes
 before publishing anything.
 
@@ -280,7 +328,7 @@ This repository will not automatically build the eeacms/eeasearch (and other app
 * Wait for the build to complete
 * Perform [these](#23-performing-production-updates) steps to deploy
 
-#### 3.2. eea.elasticsearch.river.rdf
+#### 4.2. eea.elasticsearch.river.rdf
 __Note:__ make sure that all the applications using the river work with your new changes
 before publishing anything.
 
@@ -302,7 +350,7 @@ This repository will not automatically build the eeacms/elastic Docker images.
 * Perform [these](#23-performing-production-updates) steps to deploy
 
 
-#### 3.3. eea.docker.elastic and eea.docker.eeasearch
+#### 4.3. eea.docker.elastic and eea.docker.eeasearch
 
 Pushing to master will automatically trigger a build with the :latest tag.
 Make sure that you are building with the correct tags and wait for the builds
