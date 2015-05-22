@@ -57,6 +57,8 @@ esworker1:
         - -Des.node.data=true
         - -Des.http.enabled=false
         - -Des.node.master=false
+    environment:
+        - ES_HEAP_SIZE=2g
 
 esworker2:
     image: eeacms/elastic:dev
@@ -66,3 +68,5 @@ esworker2:
         - -Des.node.data=true
         - -Des.http.enabled=false
         - -Des.node.master=false
+    environment:
+        - ES_HEAP_SIZE=2g
