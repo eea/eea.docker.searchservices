@@ -11,7 +11,7 @@ Node.js frontend to an ElasticSearch cluster
 * The base image has support for automatic sync jobs and for running index management commands
   
 > More details on the [source repository](https://github.com/eea/eea.docker.eeasearch)
-  
+
 __1.2 pam__
 [[repo]](https://github.com/eea/eea.docker.pam),  -
 Node.js frontend to an ElasticSearch cluster
@@ -21,19 +21,28 @@ Node.js frontend to an ElasticSearch cluster
 
 > More details on the [source repository](https://github.com/eea/eea.docker.pam)
 
-__1.2 esmaster__
+__1.3 aide__
+[[repo]](https://github.com/eea/eea.docker.aide),  -
+Node.js frontend to an ElasticSearch cluster
+* This container listens on port 3020 and provides a __readonly__ API endpoint to the elasticsearch cluster.
+* The rendering is done by using jquery.facetview.js
+* The base image has support for running index management commands
+
+> More details on the [source repository](https://github.com/eea/eea.docker.aide)
+
+__1.4 esmaster__
 [[repo]](https://github.com/eea/eea.docker.elastic), [[docker]](https://registry.hub.docker.com/u/eeacms/elastic/) -
 Elastic master configurated node
 * This node can't do anything besides cluster management. Thus, it has a low chance of getting shut down.
 
-__1.3 esclient__
+__1.5 esclient__
 [[repo]](https://github.com/eea/eea.docker.elastic) [[docker]](https://registry.hub.docker.com/u/eeacms/elastic/) -
 Elastic HTTP client configured node
 
 * This node is the only one that can __accept__, __parse__, __scatter__ and __gather__ HTTP query requests.
 * The actual work is being performed by the esworkers
   
-__1.4 esworker__ 
+__1.6 esworker__ 
 [[repo]](https://github.com/eea/eea.docker.elastic), [[docker]](https://registry.hub.docker.com/u/eeacms/elastic/) -
 Elastic Data storage nodes
 
@@ -43,7 +52,7 @@ Elastic Data storage nodes
   brings down the node (e.g. consumes too much memory), the other node will be able to serve the
   data.
   
-__1.5 dataw[1|2]__ - Data Volume Containers
+__1.7 dataw[1|2]__ - Data Volume Containers
 * Lightweight containers holding the data stored in the workers.
 * These containers make the data easy to backup and be restored independent of the esworker container's faith.
   
@@ -68,6 +77,9 @@ docker-compose run --rm eeasearch reindex
 # And the same for PAM
 # Start indexing data
 docker-compose run --rm pam create_index
+# And the same for AIDE
+# Start indexing data
+docker-compose run --rm aide create_index
 # Check the logs
 docker-compose logs
 # If the river is not indexing just perform a couple of reindex commands
@@ -195,7 +207,16 @@ user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.pam.git
 ```
 
 
-##### 3.3.4 Node.js eea.searchserver package
+##### 3.3.4 AIDE web application
+This repository contains a dockerized Node.js app that stands
+as a frontend for the Elasticsearch cluster defined in eea.docker.searchservices
+
+``` bash
+user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.aide.git
+```
+
+
+##### 3.3.5 Node.js eea.searchserver package
 This repository contains a Node.js module that contains
 all the shared logic needed by elasticsearch frontend webapps.
 
@@ -203,7 +224,7 @@ all the shared logic needed by elasticsearch frontend webapps.
 user@host ~/eea.es/ $ git clone git@github.com:eea/eea.searchserver.js.git
 ```
 
-##### 3.3.5 Elastic[Search] Dockerized repo
+##### 3.3.6 Elastic[Search] Dockerized repo
 This repository builds a Docker image of Elastic (former ElasticSearch) containing
 the RDF River Plugin and the Analysis ICU plugin
 
@@ -211,7 +232,7 @@ the RDF River Plugin and the Analysis ICU plugin
 user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.elastic.git
 ```
 
-##### 3.3.6 EEA RDF River Plugin
+##### 3.3.7 EEA RDF River Plugin
 This repository builds the Java RDF River plugin needed by
 elasticsearch in order to harvest data from SPARQL endpoints
 
@@ -261,7 +282,26 @@ If you want to build a development image using the production setup and the publ
 docker build -t eeacms/pam:dev .
 ```
 
-##### 3.4.3 eeacms/elastic:dev
+##### 3.4.3 eeacms/aide:dev
+
+``` bash
+cd ~/eea.es/eea.docker.aide/
+```
+
+If you want to build the development image using the local `eea.searcherver.js` code, run:
+
+``` bash
+./build_dev.sh ../eea.searchserver.js # uses Dockerfile.dev and adds local code into the image
+```
+
+If you want to build a development image using the production setup and the public
+`eea.searchserver.js` npm package available [here](https://www.npmjs.com/package/eea-searchserver), run:
+
+``` bash
+docker build -t eeacms/aide:dev .
+```
+
+##### 3.4.4 eeacms/elastic:dev
 
 ``` bash
 cd ~/eea.es/eea.docker.elastic/
@@ -300,7 +340,9 @@ Run ```docker-compose -f docker-compose.dev.yml run eeasearch create_index``` to
 
 Run ```docker-compose -f docker-compose.dev.yml run pam create_index``` to create the index for PAM
 
-Wait a bit and go to http://localhost:3000 and http://localhost:3010 then make yourself a coffee, everything works now.
+Run ```docker-compose -f docker-compose.dev.yml run aide create_index``` to create the index for AIDE
+
+Wait a bit and go to http://localhost:3000, http://localhost:3010 and http://localhost:3020 then make yourself a coffee, everything works now.
 
 ## 4. Publishing changes and updating Docker Registry images
 
