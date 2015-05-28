@@ -71,6 +71,8 @@ esworker1:
         - -Des.node.master=false
     volumes_from:
         - dataw1
+    environment:
+        - ES_HEAP_SIZE=2g
 
 ## Data is persistent by default for the containers but explicit data
 # containers are needed for automated backup operations
@@ -90,6 +92,9 @@ esworker2:
         - -Des.node.master=false
     volumes_from:
         - dataw2
+    environment:
+        - ES_HEAP_SIZE=2g
+
 dataw2:
     image: busybox
     volumes:
