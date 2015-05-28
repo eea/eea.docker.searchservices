@@ -84,9 +84,15 @@ docker-compose run --rm aide create_index
 docker-compose logs
 # If the river is not indexing just perform a couple of reindex commands
 docker-compose run --rm pam reindex
-# Go to this host:3010 to see that data is being harvested
+# Go to this host:3010 to see that data is being harvested for pam
+# Go to this host:3020 to see that data is being harvested for aide
 
 ```
+
+__Note:__
+Sometimes during the indexing and even after finishing it queries on the new index throws an error.
+Restarting elasticsearch solves the problem.
+Also you can try to increment the ES_HEAP_SIZE for the clients in the docker-compose.yml.
 
 #### 2.2 Persistent data
 
