@@ -12,6 +12,26 @@ eeasearch:
         - elastic_host=esclient
         - SYNC_CRONTAB=30 * * * * # Sync every 30 minutes
 
+pam:
+    image: eeacms/pam
+    restart: on-error:10
+    links:
+        - esclient
+    ports:
+        - 3010:3000 # Take up host 3010 port
+    environment:
+        - elastic_host=esclient
+
+aide:
+    image: eeacms/aide
+    restart: on-error:10
+    links:
+        - esclient
+    ports:
+        - 3020:3000 # Take up host 3020 port
+    environment:
+        - elastic_host=esclient
+
 ## ES Simple cluster with dedicated nodes
 esmaster:
     image: eeacms/elastic:1.5.1-1.5.6
