@@ -89,9 +89,18 @@ docker-compose run --rm pam reindex
 
 ```
 
-__Note:__
+__Troubleshooting:__
+Data is not indexed?
 Sometimes during the indexing and even after finishing it queries on the new index throws an error.
-Restarting elasticsearch solves the problem.
+Restarting elasticsearch solves the problem:
+
+```
+# Restarting the elastic workers if the index is not built
+docker-compose restart esworker1
+docker-compose restart esworker2
+```
+Now go to the &lt;serverip&gt;:9200/_plugin/head/ to see if the index is being built.
+
 Also you can try to increment the ES_HEAP_SIZE for the clients in the docker-compose.yml.
 
 #### 2.2 Persistent data
