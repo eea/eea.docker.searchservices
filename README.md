@@ -120,6 +120,7 @@ On the host runnig this compose-file do:
 git pull origin master # and get the docker-compose.yml containing the latests tags
 # Before this step you should backup the data containers if the update procedure fails
 docker-compose pull    # get the images and their tags
+docker images | grep eeacms # inspect that the new images have been downloaded
 docker-compose stop    # stop the running containers
 docker-compose start -d # start the running containers
 ```
