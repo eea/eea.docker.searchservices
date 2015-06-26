@@ -125,7 +125,7 @@ git pull origin master # and get the docker-compose.yml containing the latests t
 docker-compose pull    # get the images and their tags
 docker images | grep eeacms # inspect that the new images have been downloaded
 docker-compose stop    # stop the running containers
-docker-compose start -d # start the running containers
+docker-compose up -d # start the running containers
 ```
 
 #### 2.4 Running index management scripts from your office :)
