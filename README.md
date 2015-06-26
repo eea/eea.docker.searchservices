@@ -89,6 +89,9 @@ docker-compose run --rm pam reindex
 
 ```
 
+To see all commands an elastic app can do type ```docker-compose run --rm eeasearch help```.
+
+
 __Troubleshooting:__
 Data is not indexed?
 Sometimes during the indexing and even after finishing it queries on the new index throws an error.
