@@ -89,9 +89,21 @@ docker-compose run --rm pam reindex
 
 ```
 
-__Note:__
+To see all commands an elastic app can do type ```docker-compose run --rm eeasearch help```.
+
+
+__Troubleshooting:__
+Data is not indexed?
 Sometimes during the indexing and even after finishing it queries on the new index throws an error.
-Restarting elasticsearch solves the problem.
+Restarting elasticsearch solves the problem:
+
+```
+# Restarting the elastic workers if the index is not built
+docker-compose restart esworker1
+docker-compose restart esworker2
+```
+Now go to the &lt;serverip&gt;:9200/_plugin/head/ to see if the index is being built.
+
 Also you can try to increment the ES_HEAP_SIZE for the clients in the docker-compose.yml.
 
 #### 2.2 Persistent data
@@ -111,8 +123,9 @@ On the host runnig this compose-file do:
 git pull origin master # and get the docker-compose.yml containing the latests tags
 # Before this step you should backup the data containers if the update procedure fails
 docker-compose pull    # get the images and their tags
+docker images | grep eeacms # inspect that the new images have been downloaded
 docker-compose stop    # stop the running containers
-docker-compose start -d # start the running containers
+docker-compose up -d # start the running containers
 ```
 
 #### 2.4 Running index management scripts from your office :)
