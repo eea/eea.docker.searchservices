@@ -3,7 +3,7 @@
 # zombie containers
 eeasearch:
     image: eeacms/eeasearch
-    restart: on-error:10
+    restart: always
     links:
         - esclient
     ports:
@@ -14,7 +14,7 @@ eeasearch:
 
 pam:
     image: eeacms/pam
-    restart: on-error:10
+    restart: always
     links:
         - esclient
     ports:
@@ -24,7 +24,7 @@ pam:
 
 aide:
     image: eeacms/aide
-    restart: on-error:10
+    restart: always
     links:
         - esclient
     ports:
