@@ -202,7 +202,7 @@ parts of this stack.
 * maven (for building the EEA RDF River plugin) ```sudo apt-get install maven``` and a Java environment
 * npm (>= 2.8.4) for building and publishing the base node.js webapp module
  * Follow these steps to install the needed versions on a Debian based system [TODO]
-* Docker (>=1.5) and docker-compose (>=1.1.0)
+* Docker (>=1.5) and docker-compose (>=1.3.0)
  * Follow these steps to install them [TODO]
  * To easily run the commands ad your user into the docker group and re-login for
    the changes to take effect.
