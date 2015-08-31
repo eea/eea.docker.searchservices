@@ -43,6 +43,15 @@ esmaster:
         - -Des.http.enabled=false
         - -Des.node.master=true
         - -Des.node.river=_none_
+    volumes_from:
+        - datam
+
+## Use an explicit data container for master node
+datam:
+    image: busybox
+    volumes:
+        - /usr/share/elasticsearch/data
+
 
 esclient:
     image: eeacms/elastic:1.7.1-1.5.7
