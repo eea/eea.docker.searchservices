@@ -55,6 +55,9 @@ Elastic Data storage nodes
 __1.7 dataw[1|2]__ - Data Volume Containers
 * Lightweight containers holding the data stored in the workers.
 * These containers make the data easy to backup and be restored independent of the esworker container's faith.
+
+__1.8 datam__ - Data Container for Master node
+* This container doesn't store any indexed data, but it stores information about the worker nodes, required by the master node
   
 > * More information about elasticsearch node roles can be found [here](http://www.elastic.co/guide/en/elasticsearch/reference/1.5/modules-node.html)
 > * More information about elasticsearch node discovery can be found [here](http://www.elastic.co/guide/en/elasticsearch/reference/1.5/modules-discovery.html)
@@ -126,6 +129,22 @@ docker-compose pull    # get the images and their tags
 docker images | grep eeacms # inspect that the new images have been downloaded
 docker-compose stop    # stop the running containers
 docker-compose up -d # start the running containers
+```
+__Possible problems__
+
+In some cases the containers cannot be stopped because for some reason they have no names. This happens mostly for the elastic containers. 
+Running 
+``` bash
+docker ps -a
+```
+Displays the list of containers but some of them have no names. 
+First these containers should be removed with
+``` bash
+docker rm --force <container_id>
+```
+Second the containers should be rebuilt with
+``` bash
+docker-compose up
 ```
 
 #### 2.4 Running index management scripts from your office :)
