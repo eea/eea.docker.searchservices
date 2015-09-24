@@ -1,0 +1,24 @@
+[submodule "eea.docker.aide"]
+	path = eea.docker.aide
+	url = git@github.com:razpopa/eea.docker.aide.git
+	branch = master
+[submodule "eea.docker.eeasearch"]
+	path = eea.docker.eeasearch
+	url = git@github.com:razpopa/eea.docker.eeasearch.git
+	branch = master
+[submodule "eea.docker.elastic"]
+	path = eea.docker.elastic
+	url = git@github.com:razpopa/eea.docker.elastic.git
+	branch = master
+[submodule "eea.docker.pam"]
+	path = eea.docker.pam
+	url = git@github.com:razpopa/eea.docker.pam.git
+	branch = master
+[submodule "eea.elasticsearch.river.rdf"]
+	path = eea.elasticsearch.river.rdf
+	url = git@github.com:razpopa/eea.elasticsearch.river.rdf.git
+	branch = master
+[submodule "eea.searchserver.js"]
+	path = eea.searchserver.js
+	url = git@github.com:razpopa/eea.searchserver.js.git
+	branch = master
