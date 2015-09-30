@@ -1,146 +1,119 @@
-#!/bin/bash
-#set -x
-declare -a PROJ_LIST=([0]='aide' [1]='eeasearch' [2]='elastic' [3]='pam')
-declare -a FLAG_LIST=([0]='include_searchserver' [1]='include_es_river_rdf')
-declare -a apps_to_build
-declare -a flag_to_use
+#!/usr/bin/python
 
-function build_apps() {
-  
-  declare -a tempArray=("${!1}")
-  #for prj in "${apps_to_build[@]}"; do
-  for prj in "${tempArray[@]}"; do
-    echo "eeacms/${prj}:dev /eea.docker.${prj}/"
-    #echo ${apps_to_build[@]}
-  #docker build -t eeacms/eeasearch:dev /eea.docker.eeasearch/
-  #sleep 1
-  #docker build -t eeacms/pam:dev /eea.docker.pam/
-  #sleep 1
-  #docker build -t eeacms/aide:dev /eea.docker.aide/
-  #sleep 1
-  #docker build -t eeacms/elastic:dev /eea.docker.elastic/
-  done
-  unset apps_to_build
+from argparse import ArgumentParser
+import sys
+import subprocess
+
+
+RIVER_PROJECTS = {
+    'elastic': 'eeacms/elastic:dev',
 }
 
-function build_apps_with_flags() {
-  echo " "
+SEARCH_PROJECTS = {
+    'aide': 'eeacms/aide:dev', 
+    'eeasearch': 'eeacms/eeasearch:dev', 
+    'pam': 'eeacms/pam:dev',
 }
 
-function choose_builder() {
-  declare -a apps=("${!1}")
-  declare -a flags=("${!2}")
-  
-  if [ ${#apps[@]} -eq 0 ] && [ ${#flags[@]} -eq 0 ]; then
-    build_apps PROJ_LIST[@]
-  
-  elif [ ${#apps[@]} -ge 1 ] && [ ${#flags[@]} -eq 0 ]; then
-    build_apps apps[@]
+PATH_PROJECTS = {
+    'aide': 'eea.docker.aide',
+    'eeasearch': 'eea.docker.eeasearch',
+    'pam': 'eea.docker.pam',
+    'elastic': 'eea.docker.elastic',
+}
+
+RIVER_DEV_BUILD = '{0}/build_dev.sh {0}/../eea.elasticsearch.river.rdf'
+SEARCH_DEV_BUILD = '{0}/build_dev.sh {0}/../eea.searchserver.js'
+DOCKER_BUILD = 'docker build -t {0}'
+
+def main():
+    parser = ArgumentParser()
+    parser.add_argument('projects', metavar="PROJECT", nargs="+", 
+                        help="Specify one or more projects to build. Can be one of {0}".format(
+                        ', '.join(RIVER_PROJECTS.keys() + SEARCH_PROJECTS.keys())
+                        ))
+    parser.add_argument('-s', '--search', const=True, action='store_const', 
+                        help="Use development version of EEA.SEARCHSERVER.JS server")
+    parser.add_argument('-r', '--river', const=True, action='store_const', 
+                        help="Use development version of RIVER.RDF plugin")
+    args = parser.parse_args()
+
+    #print "Projects", args
+    #print "River", args.river
+    #print "Search", args.search
+            
+    mergeList = ', '.join(RIVER_PROJECTS.keys() + SEARCH_PROJECTS.keys()) #SEARCH_PROJECTS.copy()
+    #mergeList.update(RIVER_PROJECTS)
     
-  elif [ ${#apps[@]} -eq 0 ] && [ ${#flags[@]} -ge 1 ]; then
-    build_apps_with_flags
+    for name in args.projects:
+        if name not in mergeList:
+            print
+            #print "Insert only the following arguments: {0}".format(", ".join(mergeList.keys()))
+            print "Insert only the following arguments: {0}".format(mergeList)
+            print
+            sys.exit(1)
     
-  fi
-}
-
-function array_contains() {
-  local array=("${!1}")
-  local seeking=$2
-  local in=false
-  for element in "${array[@]}"; do
-    if [[ $element == $seeking ]]; then
-      in=true
-      break
-    fi
-  done
-  echo $in
-}
-
-function exist_in_array() {
-  local args_or_flags=("${!1}")
-  
-  for item in "${args_or_flags[@]}"; do
+#    if not args.projects:
+#        print "Please specify the "
+#        parser.print_help()
+#        sys.exit(1)
     
-    if [[ "argument" == "$2" ]]; then
-      local is_in_array=$(array_contains PROJ_LIST[@] $arg)
-      echo "args"
-    else
-      local is_in_array=$(array_contains FLAG_LIST[@] $arg)
-      echo "flags"
-    fi
-  
-    if [[ $is_in_array = false ]]; then
-      echo "$item is not a correct $2 !"
-      exit 100
-    fi
-  done
-}
+    if args.search and not set(SEARCH_PROJECTS.keys()).intersection(args.projects):
+        print 
+        print "If you include local EEA.SEARCHSERVER.JS, you should include one of {0}"\
+            .format(', '.join(SEARCH_PROJECTS.keys()))
+        print 
+        parser.print_help()
+        sys.exit(1)
 
-# Check if arguments are correctly inserted and added to local array variables
-for arg in "$@"; do
+    if args.river and not set(RIVER_PROJECTS.keys()).intersection(args.projects):
+        print 
+        print "If you include RIVER.RDF plugin, you should include {0}"\
+            .format(', '.join(RIVER_PROJECTS.keys()))
+        print 
+        parser.print_help()
+        sys.exit(1)
 
-  if [[ $arg != include* ]]; then
-    apps_to_build+=($arg)
-    #echo "$arg"
-  else
-    flag_to_use+=($arg)
-  fi
-  #echo "${apps_to_build[$var]}"
-done
+    # in case the river flag is included in command line
+    #   cd elastic
+    #   build_dev ../${RIVER}
 
-exist_in_array apps_to_build[@] "argument"
-exist_in_array flag_to_use[@] "flag"
+    # in case there is no flag on the command line
+    #   cd elastic
+    #   docker build -t eeacms/elastic:dev .
 
-# ================ to remove
-#for app in "${flag_to_use[@]}"; do
-#  local is_in_array=$(array_contains FLAG_LIST[@] $arg)
-  
-#  if [[ $is_in_array = false ]]; then
-#    echo "$arg is not a correct flag !"
-#    exit 100
-#  fi
-#done
-# ======
+    for project in RIVER_PROJECTS:
+        if project in args.projects:
+            # build the project
+            if args.river:
+                print "run command : ", RIVER_DEV_BUILD.format(PATH_PROJECTS[project])
+                res = subprocess.call(RIVER_DEV_BUILD.format(PATH_PROJECTS[project]), shell=True)
+                if res == 0:
+                    print "Failure in building ..."
+                    sys.exit(1)
+            else:
+                print "run command : ", DOCKER_BUILD.format(RIVER_PROJECTS[project])
+                res = subprocess.call(DOCKER_BUILD.format(RIVER_PROJECTS[project]), shell=True)
+                if res == 0:
+                    print "Failure in building ..."
+                    sys.exit(1)
 
-if [ ${#apps_to_build[@]} -eq 0 ]; then
-  apps_to_build=("${PROJ_LIST[@]}")
-  #for i in ${PROJ_LIST[@]}; do
-  #  apps_to_build[${#apps_to_build[*]}]=$i
-  #done
-fi
+    for project in SEARCH_PROJECTS:
+        if project in args.projects:
+            # build the project
+            if args.search:
+                print "run command : ", SEARCH_DEV_BUILD.format(PATH_PROJECTS[project])
+               res = subprocess.call(SEARCH_DEV_BUILD.format(PATH_PROJECTS[project]), shell=True)
+               if res == 0:
+                   print "Failure in building ..."
+                   sys.exit(1)
+            else:
+                print "run command : ", DOCKER_BUILD.format(SEARCH_PROJECTS[project])
+                res = subprocess.call(DOCKER_BUILD.format(SEARCH_PROJECTS[project]), shell=True)
+                if res == 0:
+                    print "Failure in building ..."
+                    sys.exit(1)
 
-choose_builder apps_to_build[@] flag_to_use[@]
-# build_apps apps_to_build[@] flag_to_use[@]
 
-
-# echo "$#"
-
-# echo "Buidling eeacms/aide locally with local eea.searchserver.js"
-
-# set -e
-
-# if [ -z $1 ]; then
-#     echo "Usage: ./build_dev.sh PATH_TO_SEACHSERVER_JS_REPO"
-#     exit 100
-# fi
-
-# if [ ! -d $1 ]; then
-#     echo "$1 is not a directory!"
-#     exit 100
-# fi
-
-# SEARCHSERVER_DIR=$1
-
-# function cleanup() {
-#     echo "Cleanup"
-#     rm -rf ./eea-searchserver
-# }
-
-# trap 'cleanup' INT
-
-# rm -rf ./eea-searchserver && cp -r $SEARCHSERVER_DIR  ./eea-searchserver
-# docker build -t "eeacms/aide:dev" -f Dockerfile.dev .
-
-# cleanup
-
-# echo "Done"
+if __name__ == "__main__":
+    main()
