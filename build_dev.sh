@@ -22,14 +22,31 @@ PATH_PROJECTS = {
     'elastic': 'eea.docker.elastic',
 }
 
-RIVER_DEV_BUILD = '{0}/build_dev.sh {0}/../eea.elasticsearch.river.rdf'
-SEARCH_DEV_BUILD = '{0}/build_dev.sh {0}/../eea.searchserver.js'
-DOCKER_BUILD = 'docker build -t {0}'
+RIVER_DEV_BUILD = ('echo "Building River Plugin" && '
+                   'pushd ./eea.elasticsearch.river.rdf &> /dev/null && '
+                   'mvn clean install && '
+                   'popd && '
+                   'echo "Building Image" && '
+                   'PLUGIN=$(find ./eea.elasticsearch.river.rdf -name "eea-rdf-river-plugin-*.zip") && '
+                   'cp $PLUGIN ./{0}/eea-rdf-river.zip && '
+                   'pushd ./eea.docker.{1} && '
+                   'docker build -f ./Dockerfile.dev -t eeacms/{1}:dev ./ && '
+                   'popd && '
+                   'rm ./{0}/eea-rdf-river.zip')
+
+SEARCH_DEV_BUILD = ('rm -rf ./{0}/eea-searchserver && '
+                    'cp -r ./eea.searchserver.js ./{0}/eea-searchserver && '
+                    'pushd ./eea.docker.{1} && '
+                    'docker build -t "eeacms/{1}:dev" -f ./Dockerfile.dev . && '
+                    'popd && '
+                    'rm -rf ./eea-searchserver')
+
+DOCKER_BUILD = 'docker build -t {0} ./{1}'
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('projects', metavar="PROJECT", nargs="+", 
-                        help="Specify one or more projects to build. Can be one of {0}".format(
+    parser.add_argument('projects', metavar="PROJECT", nargs="*", 
+                        help="Specify one or more projects to build. Can be one of {0}.\n If no arguments are specified, all projects will be built.".format(
                         ', '.join(RIVER_PROJECTS.keys() + SEARCH_PROJECTS.keys())
                         ))
     parser.add_argument('-s', '--search', const=True, action='store_const', 
@@ -38,82 +55,50 @@ def main():
                         help="Use development version of RIVER.RDF plugin")
     args = parser.parse_args()
 
-    #print "Projects", args
-    #print "River", args.river
-    #print "Search", args.search
+    print "Projects", args.projects
+    print "River", args.river
+    print "Search", args.search
             
-    mergeList = ', '.join(RIVER_PROJECTS.keys() + SEARCH_PROJECTS.keys()) #SEARCH_PROJECTS.copy()
-    #mergeList.update(RIVER_PROJECTS)
+    mergeList = ', '.join(RIVER_PROJECTS.keys() + SEARCH_PROJECTS.keys()) 
     
-    for name in args.projects:
-        if name not in mergeList:
+    commands_to_run = []
+    if not args.projects:
+        args.projects = RIVER_PROJECTS.keys() + SEARCH_PROJECTS.keys()
+    
+    for project in args.projects:
+        if project not in mergeList:
             print
-            #print "Insert only the following arguments: {0}".format(", ".join(mergeList.keys()))
-            print "Insert only the following arguments: {0}".format(mergeList)
+            print "Invalid project {0}".format(project)
+            print "Run without arguments, to build all, or insert only the following for specific project: {0}".format(mergeList)
             print
             sys.exit(1)
-    
-#    if not args.projects:
-#        print "Please specify the "
-#        parser.print_help()
-#        sys.exit(1)
-    
-    if args.search and not set(SEARCH_PROJECTS.keys()).intersection(args.projects):
-        print 
-        print "If you include local EEA.SEARCHSERVER.JS, you should include one of {0}"\
-            .format(', '.join(SEARCH_PROJECTS.keys()))
-        print 
-        parser.print_help()
-        sys.exit(1)
-
-    if args.river and not set(RIVER_PROJECTS.keys()).intersection(args.projects):
-        print 
-        print "If you include RIVER.RDF plugin, you should include {0}"\
-            .format(', '.join(RIVER_PROJECTS.keys()))
-        print 
-        parser.print_help()
-        sys.exit(1)
-
-    # in case the river flag is included in command line
-    #   cd elastic
-    #   build_dev ../${RIVER}
-
-    # in case there is no flag on the command line
-    #   cd elastic
-    #   docker build -t eeacms/elastic:dev .
-
-    for project in RIVER_PROJECTS:
-        if project in args.projects:
-            # build the project
-            if args.river:
-                print "run command : ", RIVER_DEV_BUILD.format(PATH_PROJECTS[project])
-                res = subprocess.call(RIVER_DEV_BUILD.format(PATH_PROJECTS[project]), shell=True)
-                if res == 0:
-                    print "Failure in building ..."
-                    sys.exit(1)
-            else:
-                print "run command : ", DOCKER_BUILD.format(RIVER_PROJECTS[project])
-                res = subprocess.call(DOCKER_BUILD.format(RIVER_PROJECTS[project]), shell=True)
-                if res == 0:
-                    print "Failure in building ..."
-                    sys.exit(1)
-
-    for project in SEARCH_PROJECTS:
-        if project in args.projects:
-            # build the project
+        
+        if project in SEARCH_PROJECTS:
             if args.search:
-                print "run command : ", SEARCH_DEV_BUILD.format(PATH_PROJECTS[project])
-               res = subprocess.call(SEARCH_DEV_BUILD.format(PATH_PROJECTS[project]), shell=True)
-               if res == 0:
-                   print "Failure in building ..."
-                   sys.exit(1)
+	        commands_to_run.append(SEARCH_DEV_BUILD.format(PATH_PROJECTS[project], project))
             else:
-                print "run command : ", DOCKER_BUILD.format(SEARCH_PROJECTS[project])
-                res = subprocess.call(DOCKER_BUILD.format(SEARCH_PROJECTS[project]), shell=True)
-                if res == 0:
-                    print "Failure in building ..."
-                    sys.exit(1)
-
+                commands_to_run.append(DOCKER_BUILD.format(SEARCH_PROJECTS[project], PATH_PROJECTS[project]))
+            if args.river:
+                print "Warning! -r | --river flag option will be ignored for {0}!".format(project)
+        
+        if project in RIVER_PROJECTS:
+            if args.river:
+                commands_to_run.append(RIVER_DEV_BUILD.format(PATH_PROJECTS[project], project))
+            else:
+                commands_to_run.append(DOCKER_BUILD.format(RIVER_PROJECTS[project], PATH_PROJECTS[project]))
+            if args.search:
+                print "Warning! -s | --search flag option will be ignored for {0}!".format(project)
+    print
+    
+    for cmd in commands_to_run:
+        print "run command: ", cmd
+        res = subprocess.call(cmd, shell=True, executable="/bin/bash")
+        if res != 0:
+            print "Failure in building ..."
+            sys.exit(1)
+    
+    print "Done"
+    
 
 if __name__ == "__main__":
     main()
