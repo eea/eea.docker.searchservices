@@ -217,6 +217,7 @@ parts of this stack.
 
 #### 3.1 Prerequisites
 * bash :)
+* python (>= 2)
 * git :)
 * maven (for building the EEA RDF River plugin) ```sudo apt-get install maven``` and a Java environment
 * npm (>= 2.8.4) for building and publishing the base node.js webapp module
@@ -226,144 +227,107 @@ parts of this stack.
  * To easily run the commands ad your user into the docker group and re-login for
    the changes to take effect.
 
-#### 3.2 Create a separate work directory in your home directory (or somewhere else)
+#### 3.2 Clone all the components of the stack
+
+This repository glues together all the components of the stack and also offers a template for a
+development docker-compose file. Change directory to your home or working folder and clone the 
+project using:
 
 ``` bash
-user@host ~ $ mkdir eea.es
-user@host ~ $ cd eea.es
-user@host ~/eea.es/ $ 
+user@host ~/ $ git clone --recursive git@github.com:eea/eea.docker.searchservices.git
 ```
 
-#### 3.3 Clone all the components of the stack
-##### 3.3.1 This repository
-This repository glues together all the components of the stack and also
-offers a template for a development docker-compose file.
-
-``` bash
-user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.searchservices.git
-```
-
-##### 3.3.2 EEAsearch web application
-This repository contains a dockerized Node.js app that stands
-as a frontend for the Elasticsearch cluster defined in eea.docker.searchservices
-
-``` bash
-user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.eeasearch.git
-```
-
-
-##### 3.3.3 PAM web application
-This repository contains a dockerized Node.js app that stands
-as a frontend for the Elasticsearch cluster defined in eea.docker.searchservices
-
-``` bash
-user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.pam.git
-```
-
-
-##### 3.3.4 AIDE web application
-This repository contains a dockerized Node.js app that stands
-as a frontend for the Elasticsearch cluster defined in eea.docker.searchservices
-
-``` bash
-user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.aide.git
-```
-
-
-##### 3.3.5 Node.js eea.searchserver package
-This repository contains a Node.js module that contains
-all the shared logic needed by elasticsearch frontend webapps.
-
-``` bash
-user@host ~/eea.es/ $ git clone git@github.com:eea/eea.searchserver.js.git
-```
-
-##### 3.3.6 Elastic[Search] Dockerized repo
-This repository builds a Docker image of Elastic (former ElasticSearch) containing
-the RDF River Plugin and the Analysis ICU plugin
-
-``` bash
-user@host ~/eea.es/ $ git clone git@github.com:eea/eea.docker.elastic.git
-```
-
-##### 3.3.7 EEA RDF River Plugin
-This repository builds the Java RDF River plugin needed by
-elasticsearch in order to harvest data from SPARQL endpoints
-
-``` bash
-user@host ~/eea.es/ $ git clone git@github.com:eea/eea.elasticsearch.river.rdf.git
-```
-
-#### 3.4 Build the development images
+#### 3.3 Build the development images
 
 Follow these steps to build local Docker images using the local repositories you just cloned.
-
-##### 3.4.1 eeacms/eeasearch:dev
+First go inside the new folder:
 
 ``` bash
-cd ~/eea.es/eea.docker.eeasearch/
+user@host ~ $ cd eea.docker.searchservices/
 ```
 
-If you want to build the development image using the local `eea.searcherver.js` code, run:
+The script `build_dev.sh` can create images of the projects by running the command:
 
 ``` bash
-./build_dev.sh ../eea.searchserver.js # uses Dockerfile.dev and adds local code into the image
+user@host ~/eea.docker.searchservices/ $ ./build_dev.sh
+```
+In this case the script will build all the images of projects: `eea.docker.aide, eea.docker.eeasearch`,
+ `eea.docker.pam` using the production setup and the public `eea.searchserver.js` npm package 
+ available [here](https://www.npmjs.com/package/eea-searchserver). Also builds the image of
+ `eea.docker.elastic` using the production setup and the public
+ `eea.elasticsearch.river.rdf` plugin available [here](https://github.com/eea/eea.elasticsearch.river.rdf/releases).
+
+The script accepts optional flags 
+* `-s | --search` for building the image using the local `eea.searchserver.js` code
+* `-r | --river` for building the image using the local `eea.elasticsearch.river.rdf` plugin
+
+If you want to build all the images using the local `eea.searchserver.js` code for `aide`, `pam` and
+`eeasearch` projects, and to build image for `elastic` using local `eea.elasticsearch.river.rdf`
+plugin, run:
+
+``` bash
+./build_dev.sh -s -r
 ```
 
-If you want to build a development image using the production setup and the public
-`eea.searchserver.js` npm package available [here](https://www.npmjs.com/package/eea-searchserver), run:
+or using alternative long flags
 
 ``` bash
-docker build -t eeacms/eeasearch:dev .
+./build_dev.sh --search --river
 ```
 
-##### 3.4.2 eeacms/pam:dev
+If you want to build specific project or projects, the script accepts the following arguments: `aide`,
+`eeasearch`, `elastic`, `pam`. In next examples you can see how these can be used particularly:
+
+##### 3.3.1 eeacms/eeasearch:dev
+
+If you want to build the development image using the local `eea.searchserver.js` code, run:
 
 ``` bash
-cd ~/eea.es/eea.docker.pam/
-```
-
-If you want to build the development image using the local `eea.searcherver.js` code, run:
-
-``` bash
-./build_dev.sh ../eea.searchserver.js # uses Dockerfile.dev and adds local code into the image
-```
-
-If you want to build a development image using the production setup and the public
-`eea.searchserver.js` npm package available [here](https://www.npmjs.com/package/eea-searchserver), run:
-
-``` bash
-docker build -t eeacms/pam:dev .
-```
-
-##### 3.4.3 eeacms/aide:dev
-
-``` bash
-cd ~/eea.es/eea.docker.aide/
-```
-
-If you want to build the development image using the local `eea.searcherver.js` code, run:
-
-``` bash
-./build_dev.sh ../eea.searchserver.js # uses Dockerfile.dev and adds local code into the image
+./build_dev.sh eeasearch -s   # uses Dockerfile.dev and adds local code into the image
 ```
 
 If you want to build a development image using the production setup and the public
 `eea.searchserver.js` npm package available [here](https://www.npmjs.com/package/eea-searchserver), run:
 
 ``` bash
-docker build -t eeacms/aide:dev .
+./build_dev.sh eeasearch
 ```
 
-##### 3.4.4 eeacms/elastic:dev
+##### 3.3.2 eeacms/pam:dev
+
+If you want to build the development image using the local `eea.searcherver.js` code, run:
 
 ``` bash
-cd ~/eea.es/eea.docker.elastic/
+./build_dev.sh pam -s   # uses Dockerfile.dev and adds local code into the image
 ```
+
+If you want to build a development image using the production setup and the public
+`eea.searchserver.js` npm package available [here](https://www.npmjs.com/package/eea-searchserver), run:
+
+``` bash
+./build_dev.sh pam
+```
+
+##### 3.3.3 eeacms/aide:dev
+
+If you want to build the development image using the local `eea.searcherver.js` code, run:
+
+``` bash
+./build_dev.sh aide -s   # uses Dockerfile.dev and adds local code into the image
+```
+
+If you want to build a development image using the production setup and the public
+`eea.searchserver.js` npm package available [here](https://www.npmjs.com/package/eea-searchserver), run:
+
+``` bash
+ ./build_dev.sh aide
+```
+
+##### 3.3.4 eeacms/elastic:dev
 
 If you want to build the development image using the local `eea.elasticsearch.river.rdf` code, run:
 ``` bash
-./build_dev.sh ../eea.elasticsearch.river.rdf # uses Dockerfile.dev and adds local code into the image
+./build_dev.sh elastic -r   # uses Dockerfile.dev and adds local code into the image
 ```
 
 > For this step you'll need maven
@@ -372,12 +336,40 @@ If you want to build a development image using the production setup and the publ
 `eea.elasticsearch.river.rdf` plugin available [here](https://github.com/eea/eea.elasticsearch.river.rdf/releases), run:
 
 ``` bash
-docker build -t eeacms/elastic:dev .
+ ./build_dev.sh elastic
 ```
+#### 3.4 Build multiple specific images
+
+The script accepts multiple arguments and flags in one command for building images using local or public source. 
+
+Examples: 
+1. if you want to build `aide` image using public source and `elastic` image using local plugin source,
+ then run:
+
+``` bash
+ ./build_dev.sh aide elastic -r
+```
+
+2. if you want to build `pam` image using local source and `elastic` image using public plugin source,
+ then run:
+
+``` bash
+ ./build_dev.sh elastic pam -s
+```
+
+3. if you want to build `pam`, `eeasearch` and `elastic` image using local sources, then run:
+
+``` bash
+ ./build_dev.sh elastic pam eeasearch -s -r
+```
+
+You can run the command using all the combinations of arguments as you need, the order is not relevant,
+but the optional flags should be __after__ the arguments. 
+
+Also the order of flags doesn't matter, if you choose to use both.
+
 ---
-> __Always__ use the :dev tag, as you need to delete the image in order to pull
-> the official :latest image available on Docker Registry. Not using :dev tag
-> increases the risk of running with some image on production and another locally.
+> The system output will print a warning message when the arguments and options used are incompatible.
 
 #### 3.5 Run everything on your host
 
