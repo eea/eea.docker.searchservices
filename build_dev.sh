@@ -39,7 +39,7 @@ SEARCH_DEV_BUILD = ('rm -rf ./{0}/eea-searchserver && '
                     'pushd ./eea.docker.{1} && '
                     'docker build -t "eeacms/{1}:dev" -f ./Dockerfile.dev . && '
                     'popd && '
-                    'rm -rf ./eea-searchserver')
+                    'rm -rf ./{0}/eea-searchserver')
 
 DOCKER_BUILD = 'docker build -t {0} ./{1}'
 
