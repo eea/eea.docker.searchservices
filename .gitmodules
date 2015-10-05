@@ -1,7 +1,3 @@
-[submodule "eea.docker.pam"]
-	path = eea.docker.pam
-	url = git@github.com:razpopa/eea.docker.pam.git
-	branch = master
 [submodule "eea.elasticsearch.river.rdf"]
 	path = eea.elasticsearch.river.rdf
 	url = git@github.com:razpopa/eea.elasticsearch.river.rdf.git
