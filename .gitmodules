@@ -1,4 +1,0 @@
-[submodule "eea.searchserver.js"]
-	path = eea.searchserver.js
-	url = git@github.com:razpopa/eea.searchserver.js.git
-	branch = master
