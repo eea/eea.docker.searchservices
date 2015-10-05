@@ -1,7 +1,3 @@
-[submodule "eea.docker.aide"]
-	path = eea.docker.aide
-	url = git@github.com:razpopa/eea.docker.aide.git
-	branch = master
 [submodule "eea.docker.eeasearch"]
 	path = eea.docker.eeasearch
 	url = git@github.com:razpopa/eea.docker.eeasearch.git
