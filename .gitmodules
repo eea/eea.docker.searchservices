@@ -1,7 +1,3 @@
-[submodule "eea.elasticsearch.river.rdf"]
-	path = eea.elasticsearch.river.rdf
-	url = git@github.com:razpopa/eea.elasticsearch.river.rdf.git
-	branch = master
 [submodule "eea.searchserver.js"]
 	path = eea.searchserver.js
 	url = git@github.com:razpopa/eea.searchserver.js.git
