@@ -343,25 +343,18 @@ If you want to build a development image using the production setup and the publ
 The script accepts multiple arguments and flags in one command for building images using local or public source. 
 
 Examples: 
-1. if you want to build `aide` image using public source and `elastic` image using local plugin source,
- then run:
 
-``` bash
- ./build_dev.sh aide elastic -r
-```
+#####1. if you want to build `aide` image using public source and `elastic` image using local plugin source,  then run:
 
-2. if you want to build `pam` image using local source and `elastic` image using public plugin source,
- then run:
+``` bash  ./build_dev.sh aide elastic -r ```
 
-``` bash
- ./build_dev.sh elastic pam -s
-```
+#####2. if you want to build `pam` image using local source and `elastic` image using public plugin source,  then run:
 
-3. if you want to build `pam`, `eeasearch` and `elastic` image using local sources, then run:
+``` bash  ./build_dev.sh elastic pam -s ```
 
-``` bash
- ./build_dev.sh elastic pam eeasearch -s -r
-```
+#####3. if you want to build `pam`, `eeasearch` and `elastic` image using local sources, then run:
+
+``` bash  ./build_dev.sh elastic pam eeasearch -s -r ``` 
 
 You can run the command using all the combinations of arguments as you need, the order is not relevant,
 but the optional flags should be __after__ the arguments. 
