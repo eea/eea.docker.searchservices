@@ -21,7 +21,6 @@ pam:
         - 3010:3000 # Take up host 3010 port
     environment:
         - elastic_host=esclient
-        - SYNC_CRONTAB=0 4 * * * # Sync every 30 minutes
 
 aide:
     image: eeacms/aide
@@ -32,6 +31,7 @@ aide:
         - 3020:3000 # Take up host 3020 port
     environment:
         - elastic_host=esclient
+        - SYNC_CRONTAB=0 4 * * * # Sync every 30 minutes
 
 ## ES Simple cluster with dedicated nodes
 esmaster:
