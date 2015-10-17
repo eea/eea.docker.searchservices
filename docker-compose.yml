@@ -46,12 +46,18 @@ esmaster:
         - -Des.node.river=_none_
     volumes_from:
         - datam
+    labels:
+        io.rancher.sidekicks: datam
 
 ## Use an explicit data container for master node
 datam:
     image: busybox
+    tty: true
+    command:
+        - cat
     volumes:
         - /usr/share/elasticsearch/data
+    stdin_open: true
 
 
 esclient:
@@ -83,13 +89,20 @@ esworker1:
         - dataw1
     environment:
         - ES_HEAP_SIZE=2g
+    labels:
+        io.rancher.sidekicks: dataw1
+
 
 ## Data is persistent by default for the containers but explicit data
 # containers are needed for automated backup operations
 dataw1:
     image: busybox
+    tty: true
+    command:
+        - cat
     volumes:
         - /usr/share/elasticsearch/data
+    stdin_open: true
 
 esworker2:
     image: eeacms/elastic:1.7.1-1.5.7
@@ -104,8 +117,14 @@ esworker2:
         - dataw2
     environment:
         - ES_HEAP_SIZE=2g
+    labels:
+        io.rancher.sidekicks: dataw2
 
 dataw2:
     image: busybox
+    tty: true
+    command:
+        - cat
     volumes:
         - /usr/share/elasticsearch/data
+    stdin_open: true
