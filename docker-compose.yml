@@ -1,16 +1,38 @@
+loadbalancer:
+  ports:
+  - 8111:80 # this is the only port that actually needs to be exposed on host for all traffic to the search apps
+  restart: always
+  labels:
+    io.rancher.loadbalancer.target.pam: pam.demo.eea.europa.eu=3000
+    io.rancher.loadbalancer.target.pam: pam.apps.eea.europa.eu=3000
+    io.rancher.loadbalancer.target.aide: aide.demo.eea.europa.eu=3000
+    io.rancher.loadbalancer.target.aide: aide.apps.eea.europa.eu=3000
+    io.rancher.scheduler.affinity:host_label: balancer=true
+    io.rancher.loadbalancer.target.eeasearch: search.demo.eea.europa.eu=3000
+    io.rancher.loadbalancer.target.eeasearch: search.apps.eea.europa.eu=3000
+    io.rancher.loadbalancer.target.pam2015: pam2015.demo.eea.europa.eu=3000
+    io.rancher.loadbalancer.target.pam2015: pam2015.apps.eea.europa.eu=3000
+  tty: true
+  image: rancher/load-balancer-service
+  links:
+  - pam:pam
+  - aide:aide
+  - pam2015:pam2015
+  - eeasearch:eeasearch
+  stdin_open: true
 
-## Restart always will make management commands never exit and leave
-# zombie containers
 eeasearch:
     image: eeacms/eeasearch
     restart: always
     links:
         - esclient
     ports:
-        - 3000:3000 # Take up host 3000 port
+        - 3000:3000
     environment:
         - elastic_host=esclient
         - SYNC_CRONTAB=30 * * * * # Sync every 30 minutes
+    labels:
+        io.rancher.scheduler.affinity:host_label: elastic=yes
 
 pam:
     image: eeacms/pam
@@ -18,9 +40,24 @@ pam:
     links:
         - esclient
     ports:
-        - 3010:3000 # Take up host 3010 port
+        - 3010:3000 # Take up host 3010 port, can be removed if you use the loadbalancer
     environment:
         - elastic_host=esclient
+    labels:
+        io.rancher.scheduler.affinity:host_label: elastic=yes
+
+pam2015:
+    image: eeacms/pam:2015dev
+    restart: always
+    links:
+        - esclient
+    ports:
+        - 3030:3000 # Take up host 3030 port
+    environment:
+        - elastic_host=esclient
+    labels:
+        io.rancher.scheduler.affinity:host_label: elastic=yes
+
 
 aide:
     image: eeacms/aide
@@ -32,6 +69,8 @@ aide:
     environment:
         - elastic_host=esclient
         - SYNC_CRONTAB=0 4 * * * # Sync every 30 minutes
+    labels:
+        io.rancher.scheduler.affinity:host_label: elastic=yes
 
 ## ES Simple cluster with dedicated nodes
 esmaster:
@@ -48,6 +87,7 @@ esmaster:
         - datam
     labels:
         io.rancher.sidekicks: datam
+        io.rancher.scheduler.affinity:host_label: elastic=yes
 
 ## Use an explicit data container for master node
 datam:
@@ -72,6 +112,8 @@ esclient:
         - -Des.node.river=_none_
     ports:
         - 9200:9200
+    labels:
+        io.rancher.scheduler.affinity:host_label: elastic=yes
 
 ## Explicit adding of workers as there have to be at least two initial shards
 # Do not perform docker scale over these containers as
@@ -91,7 +133,7 @@ esworker1:
         - ES_HEAP_SIZE=2g
     labels:
         io.rancher.sidekicks: dataw1
-
+        io.rancher.scheduler.affinity:host_label: elastic=yes
 
 ## Data is persistent by default for the containers but explicit data
 # containers are needed for automated backup operations
@@ -119,6 +161,7 @@ esworker2:
         - ES_HEAP_SIZE=2g
     labels:
         io.rancher.sidekicks: dataw2
+        io.rancher.scheduler.affinity:host_label: elastic=yes
 
 dataw2:
     image: busybox
