@@ -211,6 +211,24 @@ If the application is mapped under a path like: /data-and-maps/<node-app> it nee
 	}
 	```
 
+#### 2.7 Deployment with Rancher
+
+The provided docker-compose.yml in this repo is already configured to run within [Rancher PaaS](http://rancher.com/rancher/).
+
+Make sure you have the appropriate labels on the docker hosts in your Rancher cluster. See docker-compose.yml and look for labels __io.rancher.scheduler.affinity:host_label__.
+
+Go to your Rancher Web interface and generate your API key (API & Keys for "..." Environment):
+
+    $ export RANCHER_URL=<(Endpoint URL)>
+    $ export RANCHER_ACCESS_KEY=<(ACCESS KEY)>
+    $ export RANCHER_SECRET_KEY=<(SECRET KEY)>
+
+    $ git clone https://github.com/eea/eea.docker.searchservices.git
+    $ cd eea.docker.searchservices
+    $ rancher-compose up
+
+The above will automatically create a stack named eea-docker-searchservices and run it. Now look at the exposed rancher loadbalancer and configure your DNS/proxy to point to it.
+
 ## 3. Clean Development setup
 Perform this steps to be able to easily make changes to any of the EEA maintained
 parts of this stack.
