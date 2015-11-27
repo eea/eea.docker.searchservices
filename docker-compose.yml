@@ -1,3 +1,6 @@
+# the loadbalancer is specific for production/staging HA environments
+# via Rancher and not available on docker hub
+# comment it if you just want to deploy locally for development/testing 
 loadbalancer:
   ports:
   - 8111:80 # this is the only port that actually needs to be exposed on host for all traffic to the search apps
@@ -12,14 +15,12 @@ loadbalancer:
     io.rancher.loadbalancer.target.eeasearch: search.apps.eea.europa.eu=3000
     io.rancher.loadbalancer.target.pam2015: pam2015.demo.eea.europa.eu=3000
     io.rancher.loadbalancer.target.pam2015: pam2015.apps.eea.europa.eu=3000
-  tty: true
   image: rancher/load-balancer-service
   links:
   - pam:pam
   - aide:aide
   - pam2015:pam2015
   - eeasearch:eeasearch
-  stdin_open: true
 
 eeasearch:
     image: eeacms/eeasearch
@@ -28,6 +29,8 @@ eeasearch:
         - esclient
     ports:
         - 3000:3000
+    volumes:
+        - /code
     environment:
         - elastic_host=esclient
         - SYNC_CRONTAB=30 * * * * # Sync every 30 minutes
@@ -41,6 +44,8 @@ pam:
         - esclient
     ports:
         - 3010:3000 # Take up host 3010 port, can be removed if you use the loadbalancer
+    volumes:
+        - /code
     environment:
         - elastic_host=esclient
     labels:
@@ -53,11 +58,12 @@ pam2015:
         - esclient
     ports:
         - 3030:3000 # Take up host 3030 port
+    volumes:
+        - /code
     environment:
         - elastic_host=esclient
     labels:
         io.rancher.scheduler.affinity:host_label: elastic=yes
-
 
 aide:
     image: eeacms/aide
@@ -66,6 +72,8 @@ aide:
         - esclient
     ports:
         - 3020:3000 # Take up host 3020 port
+    volumes:
+        - /code
     environment:
         - elastic_host=esclient
         - SYNC_CRONTAB=0 4 * * * # Sync every 30 minutes
@@ -98,7 +106,6 @@ datam:
     volumes:
         - /usr/share/elasticsearch/data
     stdin_open: true
-
 
 esclient:
     image: eeacms/elastic:1.7.1-1.5.7
