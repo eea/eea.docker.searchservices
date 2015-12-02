@@ -144,7 +144,7 @@ docker rm --force <container_id>
 ```
 Second the containers should be rebuilt with
 ``` bash
-docker-compose up
+docker-compose up -d --no-recreate
 ```
 
 #### 2.4 Running index management scripts from your office :)
