@@ -66,7 +66,7 @@ pam2015:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
 aide:
-    image: eeacms/aide
+    image: eeacms/aide:v1.0-rc1
     restart: always
     links:
         - esclient
