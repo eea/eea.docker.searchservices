@@ -13,8 +13,6 @@ loadbalancer:
     io.rancher.scheduler.affinity:host_label: balancer=true
     io.rancher.loadbalancer.target.eeasearch: search.demo.eea.europa.eu=3000
     io.rancher.loadbalancer.target.eeasearch: search.apps.eea.europa.eu=3000
-    io.rancher.loadbalancer.target.pam2015: pam2015.demo.eea.europa.eu=3000
-    io.rancher.loadbalancer.target.pam2015: pam2015.apps.eea.europa.eu=3000
   image: rancher/load-balancer-service
   links:
   - pam:pam
