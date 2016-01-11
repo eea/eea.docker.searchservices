@@ -20,7 +20,7 @@ loadbalancer:
   - eeasearch:eeasearch
 
 eeasearch:
-    image: eeacms/eeasearch
+    image: eeacms/eeasearch:v1.0
     restart: always
     links:
         - esclient
