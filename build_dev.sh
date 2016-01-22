@@ -2,24 +2,19 @@
 
 from argparse import ArgumentParser
 import sys
+import os
 import subprocess
 
+dirs = [d for d in os.listdir('.') if os.path.isdir(d) and d[:11] == 'eea.docker.' and d != 'eea.docker.elastic']
+
+SEARCH_PROJECTS = {d[11:]:'eeacms/%s:dev' %d[11:] for d in dirs}
+
+PATH_PROJECTS = {d[11:]:d for d in dirs}
+
+PATH_PROJECTS['elastic'] = 'eea.docker.elastic'
 
 RIVER_PROJECTS = {
     'elastic': 'eeacms/elastic:dev',
-}
-
-SEARCH_PROJECTS = {
-    'aide': 'eeacms/aide:dev', 
-    'eeasearch': 'eeacms/eeasearch:dev', 
-    'pam': 'eeacms/pam:dev',
-}
-
-PATH_PROJECTS = {
-    'aide': 'eea.docker.aide',
-    'eeasearch': 'eea.docker.eeasearch',
-    'pam': 'eea.docker.pam',
-    'elastic': 'eea.docker.elastic',
 }
 
 RIVER_DEV_BUILD = ('echo "Building River Plugin" && '
@@ -45,26 +40,26 @@ DOCKER_BUILD = 'docker build -t {0} ./{1}'
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('projects', metavar="PROJECT", nargs="*", 
+    parser.add_argument('projects', metavar="PROJECT", nargs="*",
                         help="Specify one or more projects to build. Can be one of {0}.\n If no arguments are specified, all projects will be built.".format(
                         ', '.join(RIVER_PROJECTS.keys() + SEARCH_PROJECTS.keys())
                         ))
-    parser.add_argument('-s', '--search', const=True, action='store_const', 
+    parser.add_argument('-s', '--search', const=True, action='store_const',
                         help="Use development version of EEA.SEARCHSERVER.JS server")
-    parser.add_argument('-r', '--river', const=True, action='store_const', 
+    parser.add_argument('-r', '--river', const=True, action='store_const',
                         help="Use development version of RIVER.RDF plugin")
     args = parser.parse_args()
 
     print "Projects", args.projects
     print "River", args.river
     print "Search", args.search
-            
-    mergeList = ', '.join(RIVER_PROJECTS.keys() + SEARCH_PROJECTS.keys()) 
-    
+
+    mergeList = ', '.join(RIVER_PROJECTS.keys() + SEARCH_PROJECTS.keys())
+
     commands_to_run = []
     if not args.projects:
         args.projects = RIVER_PROJECTS.keys() + SEARCH_PROJECTS.keys()
-    
+
     for project in args.projects:
         if project not in mergeList:
             print
@@ -72,15 +67,15 @@ def main():
             print "Run without arguments, to build all, or insert only the following for specific project: {0}".format(mergeList)
             print
             sys.exit(1)
-        
+
         if project in SEARCH_PROJECTS:
             if args.search:
-	        commands_to_run.append(SEARCH_DEV_BUILD.format(PATH_PROJECTS[project], project))
+                commands_to_run.append(SEARCH_DEV_BUILD.format(PATH_PROJECTS[project], project))
             else:
                 commands_to_run.append(DOCKER_BUILD.format(SEARCH_PROJECTS[project], PATH_PROJECTS[project]))
             if args.river:
                 print "Warning! -r | --river flag option will be ignored for {0}!".format(project)
-        
+
         if project in RIVER_PROJECTS:
             if args.river:
                 commands_to_run.append(RIVER_DEV_BUILD.format(PATH_PROJECTS[project], project))
@@ -89,16 +84,15 @@ def main():
             if args.search:
                 print "Warning! -s | --search flag option will be ignored for {0}!".format(project)
     print
-    
     for cmd in commands_to_run:
         print "run command: ", cmd
         res = subprocess.call(cmd, shell=True, executable="/bin/bash")
         if res != 0:
             print "Failure in building ..."
             sys.exit(1)
-    
+
     print "Done"
-    
+
 
 if __name__ == "__main__":
     main()
