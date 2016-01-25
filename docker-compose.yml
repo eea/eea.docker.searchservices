@@ -20,7 +20,7 @@ loadbalancer:
   - eeasearch:eeasearch
 
 eeasearch:
-    image: eeacms/eeasearch:v1.0
+    image: eeacms/eeasearch:v1.1
     restart: always
     links:
         - esclient
@@ -35,7 +35,7 @@ eeasearch:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
 pam:
-    image: eeacms/pam:v2.0
+    image: eeacms/pam:v2.1
     restart: always
     links:
         - esclient
@@ -49,7 +49,7 @@ pam:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
 aide:
-    image: eeacms/aide:v1.0-rc3
+    image: eeacms/aide:v1.0-rc4
     restart: always
     links:
         - esclient
