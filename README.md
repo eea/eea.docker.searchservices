@@ -69,6 +69,41 @@ __1.8 datam__ - Data Container for Master node
 git clone https://github.com/eea/eea.docker.searchservices
 cd eea.docker.searchservices
 docker-compose up -d
+```
+
+To see all commands an elastic app can do type ```docker-compose run --rm eeasearch help```.
+
+
+__Troubleshooting:__
+Data is not indexed?
+Sometimes during the indexing and even after finishing it queries on the new index throws an error.
+Restarting elasticsearch solves the problem:
+
+```
+# Restarting the elastic workers if the index is not built
+docker-compose restart esworker1
+docker-compose restart esworker2
+```
+Now go to the &lt;serverip&gt;:9200/_plugin/head/ to see if the index is being built.
+
+Also you can try to increment the ES_HEAP_SIZE for the clients in the docker-compose.yml.
+
+##### 2.1.1 Auto indexing
+
+All elastic search apps run a create index at startup if they haven't indexes or not have data.
+
+You can stop this feature adding ```AUTO_INDEXING=false``` into environment section of the docker-compose.yml
+
+```
+...
+environment:
+        - AUTO_INDEXING=false
+...
+```
+
+After you can run the follow steps to index
+
+```
 # Wait a while for the elastic cluster to get initialized
 # Start indexing data
 docker-compose run --rm eeasearch create_index
@@ -91,23 +126,6 @@ docker-compose run --rm pam reindex
 # Go to this host:3020 to see that data is being harvested for aide
 
 ```
-
-To see all commands an elastic app can do type ```docker-compose run --rm eeasearch help```.
-
-
-__Troubleshooting:__
-Data is not indexed?
-Sometimes during the indexing and even after finishing it queries on the new index throws an error.
-Restarting elasticsearch solves the problem:
-
-```
-# Restarting the elastic workers if the index is not built
-docker-compose restart esworker1
-docker-compose restart esworker2
-```
-Now go to the &lt;serverip&gt;:9200/_plugin/head/ to see if the index is being built.
-
-Also you can try to increment the ES_HEAP_SIZE for the clients in the docker-compose.yml.
 
 #### 2.2 Persistent data
 
