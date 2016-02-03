@@ -22,3 +22,7 @@
 	path = eea.searchserver.js
 	url = https://github.com/eea/eea.searchserver.js.git
 	branch = master
+[submodule "eea.docker.node"]
+	path = eea.docker.node
+	url = https://github.com/eea/eea.docker.node
+	branch = master
