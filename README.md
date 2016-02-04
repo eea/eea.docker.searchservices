@@ -66,7 +66,7 @@ __1.8 datam__ - Data Container for Master node
 #### 2.1 Getting the latest release up and running for the first time
 
 ``` bash
-git clone https://github.com/eea/eea.docker.searchservices
+git clone --recurse https://github.com/eea/eea.docker.searchservices
 cd eea.docker.searchservices
 docker-compose up -d
 ```
