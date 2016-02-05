@@ -5,13 +5,16 @@ import sys
 import os
 import subprocess
 
-dirs = [d for d in os.listdir('.') if os.path.isdir(d) and d[:11] == 'eea.docker.' and d != 'eea.docker.elastic']
+SKIP_PROJECTS = ['eea.docker.elastic', 'eea.docker.node']
+
+dirs = [d for d in os.listdir('.') if os.path.isdir(d) and d[:11] == 'eea.docker.' and (d not in SKIP_PROJECTS) ]
 
 SEARCH_PROJECTS = {d[11:]:'eeacms/%s:dev' %d[11:] for d in dirs}
 
 PATH_PROJECTS = {d[11:]:d for d in dirs}
 
 PATH_PROJECTS['elastic'] = 'eea.docker.elastic'
+PATH_PROJECTS['node'] = 'eea.docker.node'
 
 RIVER_PROJECTS = {
     'elastic': 'eeacms/elastic:dev',
