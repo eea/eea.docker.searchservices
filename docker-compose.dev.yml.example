@@ -31,6 +31,19 @@ eeasearch:
         - elastic_host=esclient
         #- SYNC_CRONTAB=30 * * * * # Disable sync for dev
 
+esbootstrap:
+    image: eeacms/esbootstrap:dev # Work with dev built eeasarch app
+    links:
+        - esclient
+    ports:
+        - 3030:3000 # Take up host 3030 port for demo
+    environment:
+        - elastic_host=esclient
+        #- SYNC_CRONTAB=*/30 * * * * # Disable sync for dev
+    volumes:
+        - ./eea.docker.esbootstrap/app/:/code/:z
+        - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+
 ## ES Simple cluster with dedicated nodes
 esmaster:
     image: eeacms/elastic:dev
