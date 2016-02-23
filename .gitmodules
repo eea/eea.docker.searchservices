@@ -21,7 +21,7 @@
 [submodule "eea.searchserver.js"]
 	path = eea.searchserver.js
 	url = https://github.com/eea/eea.searchserver.js.git
-	branch = master
+	branch = esbootstrap
 [submodule "eea.docker.node"]
 	path = eea.docker.node
 	url = https://github.com/eea/eea.docker.node
