@@ -35,7 +35,7 @@ eeasearch:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
 pam:
-    image: eeacms/pam:v2.6
+    image: eeacms/pam:v2.5-glibc
     restart: always
     links:
         - esclient
