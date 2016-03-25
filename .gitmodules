@@ -26,3 +26,7 @@
 	path = eea.docker.node
 	url = https://github.com/eea/eea.docker.node
 	branch = master
+[submodule "eea.docker.esbootstrap"]
+	path = eea.docker.esbootstrap
+	url = https://github.com/eea/eea.docker.esbootstrap
+	branch = master
