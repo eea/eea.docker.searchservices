@@ -412,11 +412,11 @@ Edit docker-compose.dev.yml to fit your test case.
 
 Run ```docker-compose -f docker-compose.dev.yml up``` to start all services.
 
-Run ```docker-compose -f docker-compose.dev.yml run eeasearch create_index``` to create the index for EEASearch
+Run ```docker-compose -f docker-compose.dev.yml run --rm eeasearch create_index``` to create the index for EEASearch
 
-Run ```docker-compose -f docker-compose.dev.yml run pam create_index``` to create the index for PAM
+Run ```docker-compose -f docker-compose.dev.yml run --rm pam create_index``` to create the index for PAM
 
-Run ```docker-compose -f docker-compose.dev.yml run aide create_index``` to create the index for AIDE
+Run ```docker-compose -f docker-compose.dev.yml run --rm aide create_index``` to create the index for AIDE
 
 Wait a bit and go to http://localhost:3000, http://localhost:3010 and http://localhost:3020 then make yourself a coffee, everything works now.
 
