@@ -147,7 +147,7 @@ git pull origin master # and get the docker-compose.yml containing the latests t
 docker-compose pull    # get the images and their tags
 docker images | grep eeacms # inspect that the new images have been downloaded
 docker-compose rm -vf eeasearch aide pam # remove the old containers befor start
-docker-compose up -d # start the running containers
+docker-compose up -d --no-recreate # start the running containers
 ```
 __Possible problems__
 
