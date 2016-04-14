@@ -485,12 +485,12 @@ Application data last refreshed 05 April 2016 12:52 PM. Version info eeacms/pam:
 
 
 * 05 April 2016 12:52 PM - the date when index was updated/rebuilt
-* eeacms/pam:v2.7.3 - current image version used - this is an optional value that can be specified in the docker compose file like below:
+* eeacms/pam:v2.7.3 - current image version used; this is an optional value that can be specified in the docker compose file like below:
 
 ```
 environment:
 	- VERSION_INFO=eeacms/pam:v2.7.3
 ```
 
-* v2.8 - current git tag number
+* v2.8 - current git tag number (based on git describe --tags)
 * 718b1e09d6a0 - container id (HOSTANME environment variable)
