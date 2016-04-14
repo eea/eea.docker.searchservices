@@ -480,7 +480,7 @@ to complete bofore performing [these](#23-performing-production-updates) steps.
 All elastic applications will display in the footer information about the current index and container, like below:
 
 ```
-	Application data last refreshed 05 April 2016 12:52 PM. Version info eeacms/pam:v2.7.3 and git tag number v2.8 on 718b1e09d6a0.
+Application data last refreshed 05 April 2016 12:52 PM. Version info eeacms/pam:v2.7.3 and git tag number v2.8 on 718b1e09d6a0.
 ```
 
 
@@ -488,8 +488,8 @@ All elastic applications will display in the footer information about the curren
 * eeacms/pam:v2.7.3 - current image version used - this is an optional value that can be specified in the docker compose file like below:
 
 ```
-	environment:
-		- VERSION_INFO=eeacms/pam:v2.7.3
+environment:
+	- VERSION_INFO=eeacms/pam:v2.7.3
 ```
 
 * v2.8 - current git tag number
