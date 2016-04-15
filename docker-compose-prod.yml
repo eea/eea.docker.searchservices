@@ -1,0 +1,66 @@
+eeasearch:
+  extends:                                     
+    file: docker-compose-base.yml
+    service: eeasearch
+  links:
+      - esclient
+
+pam:
+  extends:
+    file: docker-compose-base.yml
+    service: pam
+  links:
+      - esclient
+
+aide:
+  extends:
+    file: docker-compose-base.yml
+    service: aide
+  links:
+      - esclient
+
+
+esclient:
+  extends:
+    file: docker-compose-base.yml
+    service: esclient
+
+esmaster:
+  extends:
+    file: docker-compose-base.yml
+    service: esmaster
+  volumes_from:
+      - datam
+
+esworker1:
+  extends:
+    file: docker-compose-base.yml
+    service: esworker1
+  volumes_from:
+      - dataw1
+
+esworker2:
+  extends:
+    file: docker-compose-base.yml
+    service: esworker2
+  volumes_from:
+      - dataw2
+
+## Use an explicit data container for master node
+datam:
+  extends:
+    file: docker-compose-base.yml
+    service: datam
+
+## Use an explicit data container for worker node
+dataw1:
+  extends:
+    file: docker-compose-base.yml
+    service: dataw1
+
+## Use an explicit data container for worker node
+dataw2:
+  extends:
+    file: docker-compose-base.yml
+    service: dataw2
+

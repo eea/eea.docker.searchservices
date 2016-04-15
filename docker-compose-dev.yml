@@ -1,0 +1,27 @@
+eeasearch:
+  extends:                                     
+    file: docker-compose-base.yml
+    service: eeasearch
+  build: ./eea.docker.eeasearch/
+  volumes: 
+      - ./eea.docker.eeasearch/app/:/code/:z
+      - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+  links:
+      - esclient
+
+esclient:
+  extends:
+    file: docker-compose-base.yml
+    service: esclient
+
+esmaster:
+  extends:
+    file: docker-compose-base.yml
+    service: esmaster
+
+esworker1:
+  extends:
+    file: docker-compose-base.yml
+    service: esworker1
+
+
