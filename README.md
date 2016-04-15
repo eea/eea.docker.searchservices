@@ -473,3 +473,24 @@ This repository will not automatically build the eeacms/elastic Docker images.
 Pushing to master will automatically trigger a build with the :latest tag.
 Make sure that you are building with the correct tags and wait for the builds
 to complete bofore performing [these](#23-performing-production-updates) steps.
+
+
+#### 4.4. Information about current container, git version and index
+
+All elastic applications will display in the page footer information about the current index and container, like below:
+
+```
+Application data last refreshed 05 April 2016 12:52 PM. Version info eeacms/pam:v2.7.3 and git tag number v2.8 on 718b1e09d6a0.
+```
+
+
+* 05 April 2016 12:52 PM - the date when index was updated/rebuilt
+* eeacms/pam:v2.7.3 - current image version used; this is an optional value that can be specified in the docker compose file like below:
+
+```
+environment:
+	- VERSION_INFO=eeacms/pam:v2.7.3
+```
+
+* v2.8 - current git tag number (based on git describe --tags)
+* 718b1e09d6a0 - container id (HOSTANME environment variable)
