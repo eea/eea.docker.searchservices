@@ -31,6 +31,7 @@ eeasearch:
     environment:
         - elastic_host=esclient
         - SYNC_CRONTAB=30 * * * * # Sync every 30 minutes
+	- VERSION_INFO=eeacms/eeasearch:v1.9
     labels:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
@@ -45,6 +46,7 @@ pam:
         - /code
     environment:
         - elastic_host=esclient
+        - VERSION_INFO=eeacms/pam:v2.9
     labels:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
@@ -60,6 +62,7 @@ aide:
     environment:
         - elastic_host=esclient
         - SYNC_CRONTAB=0 4 * * * # Sync every 30 minutes
+        - VERSION_INFO=eeacms/aide:v1.0-rc11
     labels:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
