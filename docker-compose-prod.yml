@@ -1,5 +1,5 @@
 eeasearch:
-  extends:                                     
+  extends:
     file: docker-compose-base.yml
     service: eeasearch
   links:

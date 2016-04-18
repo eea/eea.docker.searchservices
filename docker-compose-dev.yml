@@ -1,13 +1,55 @@
 eeasearch:
-  extends:                                     
+  extends:
     file: docker-compose-base.yml
     service: eeasearch
   build: ./eea.docker.eeasearch/
-  volumes: 
+  volumes:
       - ./eea.docker.eeasearch/app/:/code/:z
       - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
   links:
       - esclient
+  environment:
+      - AUTO_INDEXING=false
+
+pam:
+  extends:
+    file: docker-compose-base.yml
+    service: pam
+  build: ./eea.docker.pam/
+  volumes:
+      - ./eea.docker.pam/app/:/code/:z
+      - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+  links:
+      - esclient
+  environment:
+      - AUTO_INDEXING=false
+
+aide:
+  extends:
+    file: docker-compose-base.yml
+    service: aide
+  build: ./eea.docker.eeasearch/
+  volumes:
+      - ./eea.docker.aide/app/:/code/:z
+      - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+  links:
+      - esclient
+  environment:
+      - AUTO_INDEXING=false
+
+esbootstrap: #Demo app for using a simple esbootstrap application
+  build: ./eea.docker.esbootstrap/
+  links:
+      - esclient
+  ports:
+      - 3030:3000 # Take up host 3030 port for demo
+  environment:
+      - elastic_host=esclient
+      - AUTO_INDEXING=false
+  volumes:
+      - ./eea.docker.esbootstrap/app/:/code/:z
+      - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+      - ./eea.docker.esbootstrap/app/config/:/code/config/:z #use the config files from the eea.docker.esbootstrap/app/config folder
 
 esclient:
   extends:
