@@ -89,10 +89,23 @@ esmaster:
   extends:
     file: docker-compose-base.yml
     service: esmaster
+  volumes_from:
+      - datam
 
 esworker1:
   extends:
     file: docker-compose-base.yml
     service: esworker1
+  volumes_from:
+      - dataw1
 
+datam:
+  extends:
+    file: docker-compose-base.yml
+    service: datam
+
+dataw1:
+  extends:
+    file: docker-compose-base.yml
+    service: dataw1
 
