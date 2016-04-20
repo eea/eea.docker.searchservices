@@ -99,6 +99,13 @@ esworker1:
   volumes_from:
       - dataw1
 
+esworker2:
+  extends:
+    file: docker-compose-base.yml
+    service: esworker2
+  volumes_from:
+      - dataw2
+
 datam:
   extends:
     file: docker-compose-base.yml
@@ -108,4 +115,9 @@ dataw1:
   extends:
     file: docker-compose-base.yml
     service: dataw1
+
+dataw2:
+  extends:
+    file: docker-compose-base.yml
+    service: dataw2
 
