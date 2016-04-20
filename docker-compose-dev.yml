@@ -10,6 +10,14 @@ eeasearch:
       - esclient
   environment:
       - AUTO_INDEXING=false
+  entrypoint:
+      - /node_modules/.bin/nodemon
+      - --watch
+      - code/
+      - /code/app.js
+  command:
+      - runserver
+
 
 pam:
   extends:
@@ -23,6 +31,13 @@ pam:
       - esclient
   environment:
       - AUTO_INDEXING=false
+  entrypoint:
+      - /node_modules/.bin/nodemon
+      - --watch
+      - code/
+      - /code/app.js
+  command:
+      - runserver
 
 aide:
   extends:
@@ -36,6 +51,13 @@ aide:
       - esclient
   environment:
       - AUTO_INDEXING=false
+  entrypoint:
+      - /node_modules/.bin/nodemon
+      - --watch
+      - code/
+      - /code/app.js
+  command:
+      - runserver
 
 esbootstrap: #Demo app for using a simple esbootstrap application
   build: ./eea.docker.esbootstrap/
@@ -50,6 +72,13 @@ esbootstrap: #Demo app for using a simple esbootstrap application
       - ./eea.docker.esbootstrap/app/:/code/:z
       - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
       - ./eea.docker.esbootstrap/app/config/:/code/config/:z #use the config files from the eea.docker.esbootstrap/app/config folder
+  entrypoint:
+      - /node_modules/.bin/nodemon
+      - --watch
+      - code/
+      - /code/app.js
+  command:
+      - runserver
 
 esclient:
   extends:
