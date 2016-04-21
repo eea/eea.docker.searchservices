@@ -1,0 +1,151 @@
+eeasearch:
+  extends:
+    file: docker-compose-base.yml
+    service: eeasearch
+  build: ./eea.docker.eeasearch/
+  volumes:
+      - ./eea.docker.eeasearch/app/:/code/:z
+      - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+  links:
+      - esclient
+  environment:
+      - AUTO_INDEXING=false
+  entrypoint:
+      - /node_modules/.bin/nodemon
+      - --watch
+      - code/
+      - /code/app.js
+  command:
+      - runserver
+
+
+pam:
+  extends:
+    file: docker-compose-base.yml
+    service: pam
+  build: ./eea.docker.pam/
+  volumes:
+      - ./eea.docker.pam/app/:/code/:z
+      - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+  links:
+      - esclient
+  environment:
+      - AUTO_INDEXING=false
+  entrypoint:
+      - /node_modules/.bin/nodemon
+      - --watch
+      - code/
+      - /code/app.js
+  command:
+      - runserver
+
+aide:
+  extends:
+    file: docker-compose-base.yml
+    service: aide
+  build: ./eea.docker.eeasearch/
+  volumes:
+      - ./eea.docker.aide/app/:/code/:z
+      - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+  links:
+      - esclient
+  environment:
+      - AUTO_INDEXING=false
+  entrypoint:
+      - /node_modules/.bin/nodemon
+      - --watch
+      - code/
+      - /code/app.js
+  command:
+      - runserver
+
+esbootstrap: #Demo app for using a simple esbootstrap application
+  build: ./eea.docker.esbootstrap/
+  links:
+      - esclient
+  ports:
+      - 3030:3000 # Take up host 3030 port for demo
+  environment:
+      - elastic_host=esclient
+      - AUTO_INDEXING=false
+  volumes:
+      - ./eea.docker.esbootstrap/app/:/code/:z
+      - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+      - ./eea.docker.esbootstrap/app/config/:/code/config/:z #use the config files from the eea.docker.esbootstrap/app/config folder
+  entrypoint:
+      - /node_modules/.bin/nodemon
+      - --watch
+      - code/
+      - /code/app.js
+  command:
+      - runserver
+
+esclient:
+  extends:
+    file: docker-compose-base.yml
+    service: esclient
+  build: ./eea.docker.elastic/
+  volumes:
+    - ./elastic_dev_startup.sh:/elastic_dev_startup.sh #our custom entrypoint what will build the rdf river from source and install it
+    - ./eea.elasticsearch.river.rdf/:/river_src
+  entrypoint:
+    - /bin/bash
+    - /elastic_dev_startup.sh
+
+esmaster:
+  extends:
+    file: docker-compose-base.yml
+    service: esmaster
+  build: ./eea.docker.elastic/
+  volumes_from:
+    - datam
+  volumes:
+    - ./elastic_dev_startup.sh:/elastic_dev_startup.sh #our custom entrypoint what will build the rdf river from source and install it
+    - ./eea.elasticsearch.river.rdf/:/river_src
+  entrypoint:
+    - /bin/bash
+    - /elastic_dev_startup.sh
+
+esworker1:
+  extends:
+    file: docker-compose-base.yml
+    service: esworker1
+  build: ./eea.docker.elastic/
+  volumes_from:
+    - dataw1
+  volumes:
+    - ./elastic_dev_startup.sh:/elastic_dev_startup.sh #our custom entrypoint what will build the rdf river from source and install it
+    - ./eea.elasticsearch.river.rdf/:/river_src
+  entrypoint:
+    - /bin/bash
+    - /elastic_dev_startup.sh
+
+esworker2:
+  extends:
+    file: docker-compose-base.yml
+    service: esworker2
+  build: ./eea.docker.elastic/
+  volumes_from:
+    - dataw2
+  volumes:
+    - ./elastic_dev_startup.sh:/elastic_dev_startup.sh #our custom entrypoint what will build the rdf river from source and install it
+    - ./eea.elasticsearch.river.rdf/:/river_src
+  entrypoint:
+    - /bin/bash
+    - /elastic_dev_startup.sh
+
+datam:
+  extends:
+    file: docker-compose-base.yml
+    service: datam
+
+dataw1:
+  extends:
+    file: docker-compose-base.yml
+    service: dataw1
+
+dataw2:
+  extends:
+    file: docker-compose-base.yml
+    service: dataw2
+
