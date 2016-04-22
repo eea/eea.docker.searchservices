@@ -142,7 +142,7 @@ On the host runnig this compose-file do:
 
 ``` bash
 docker-compose stop    # stop the running containers
-git pull origin master # and get the docker-compose.yml containing the latests tags
+git pull origin master # and get the docker-compose-prod.yml containing the latests tags
 # Before this step you should backup the data containers if the update procedure fails
 docker-compose pull    # get the images and their tags
 docker images | grep eeacms # inspect that the new images have been downloaded
@@ -232,9 +232,9 @@ If the application is mapped under a path like: /data-and-maps/<node-app> it nee
 
 #### 2.7 Deployment with Rancher
 
-The provided docker-compose.yml in this repo is already configured to run within [Rancher PaaS](http://rancher.com/rancher/).
+The provided docker-compose-prod.yml in this repo is already configured to run within [Rancher PaaS](http://rancher.com/rancher/).
 
-Make sure you have the appropriate labels on the docker hosts in your Rancher cluster. See docker-compose.yml and look for labels __io.rancher.scheduler.affinity:host_label__.
+Make sure you have the appropriate labels on the docker hosts in your Rancher cluster. See docker-compose-prod.yml and look for labels __io.rancher.scheduler.affinity:host_label__.
 
 Go to your Rancher Web interface and generate your API key (API & Keys for "..." Environment):
 
@@ -274,151 +274,28 @@ project using:
 user@host ~/ $ git clone --recursive git@github.com:eea/eea.docker.searchservices.git
 ```
 
-#### 3.3 Build the development images
+#### 3.3 Run everything on your host
+Building the elastic containers from sources is rarely used, and takes lot of time, so we have 2 options:
 
-Follow these steps to build local Docker images using the local repositories you just cloned.
-First go inside the new folder:
+ - use the elastic images from dockerhub
+ - build the images from sources
 
-``` bash
-user@host ~ $ cd eea.docker.searchservices/
-```
+##### 3.3.1 With elastic images pulled from the hub
 
-The script `build_dev.sh` can create images of the projects by running the command:
+Run ```docker-compose -f docker-compose-dev.yml up``` to start all services.
 
-``` bash
-user@host ~/eea.docker.searchservices/ $ ./build_dev.sh
-```
-In this case the script will build all the images of projects: `eea.docker.aide, eea.docker.eeasearch`,
- `eea.docker.pam` using the production setup and the public `eea.searchserver.js` npm package 
- available [here](https://www.npmjs.com/package/eea-searchserver). Also builds the image of
- `eea.docker.elastic` using the production setup and the public
- `eea.elasticsearch.river.rdf` plugin available [here](https://github.com/eea/eea.elasticsearch.river.rdf/releases).
+Check http://localhost:9200 or http://localhost:9200/_plugin/head/ to see if elastic is up and running. When it's up, you can go to http://localhost:3000, http://localhost:3010 and http://localhost:3020 then make yourself a coffee, everything works now.
 
-The script accepts optional flags 
-* `-s | --search` for building the image using the local `eea.searchserver.js` code
-* `-r | --river` for building the image using the local `eea.elasticsearch.river.rdf` plugin
+##### 3.3.2 With elastic images built from the source code using the rdf river plugin from sources
 
-If you want to build all the images using the local `eea.searchserver.js` code for `aide`, `pam` and
-`eeasearch` projects, and to build image for `elastic` using local `eea.elasticsearch.river.rdf`
-plugin, run:
+ Run ```docker-compose -f docker-compose-dev-elastic.yml up``` to start all services.
 
-``` bash
-./build_dev.sh -s -r
-```
+##### 3.3.3 Indexing
+Run ```docker-compose -f docker-compose-dev.yml run --rm eeasearch create_index``` to create the index for EEASearch
 
-or using alternative long flags
+Run ```docker-compose -f docker-compose-dev.yml run --rm pam create_index``` to create the index for PAM
 
-``` bash
-./build_dev.sh --search --river
-```
-
-If you want to build specific project or projects, the script accepts the following arguments: `aide`,
-`eeasearch`, `elastic`, `pam`. In next examples you can see how these can be used particularly:
-
-##### 3.3.1 eeacms/eeasearch:dev
-
-If you want to build the development image using the local `eea.searchserver.js` code, run:
-
-``` bash
-./build_dev.sh eeasearch -s   # uses Dockerfile.dev and adds local code into the image
-```
-
-If you want to build a development image using the production setup and the public
-`eea.searchserver.js` npm package available [here](https://www.npmjs.com/package/eea-searchserver), run:
-
-``` bash
-./build_dev.sh eeasearch
-```
-
-##### 3.3.2 eeacms/pam:dev
-
-If you want to build the development image using the local `eea.searcherver.js` code, run:
-
-``` bash
-./build_dev.sh pam -s   # uses Dockerfile.dev and adds local code into the image
-```
-
-If you want to build a development image using the production setup and the public
-`eea.searchserver.js` npm package available [here](https://www.npmjs.com/package/eea-searchserver), run:
-
-``` bash
-./build_dev.sh pam
-```
-
-##### 3.3.3 eeacms/aide:dev
-
-If you want to build the development image using the local `eea.searcherver.js` code, run:
-
-``` bash
-./build_dev.sh aide -s   # uses Dockerfile.dev and adds local code into the image
-```
-
-If you want to build a development image using the production setup and the public
-`eea.searchserver.js` npm package available [here](https://www.npmjs.com/package/eea-searchserver), run:
-
-``` bash
- ./build_dev.sh aide
-```
-
-##### 3.3.4 eeacms/elastic:dev
-
-If you want to build the development image using the local `eea.elasticsearch.river.rdf` code, run:
-``` bash
-./build_dev.sh elastic -r   # uses Dockerfile.dev and adds local code into the image
-```
-
-> For this step you'll need maven
-
-If you want to build a development image using the production setup and the public
-`eea.elasticsearch.river.rdf` plugin available [here](https://github.com/eea/eea.elasticsearch.river.rdf/releases), run:
-
-``` bash
- ./build_dev.sh elastic
-```
-#### 3.4 Build multiple specific images
-
-The script accepts multiple arguments and flags in one command for building images using local or public source. 
-
-Examples: 
-
-#####1. if you want to build `aide` image using public source and `elastic` image using local plugin source,  then run:
-
-``` bash  ./build_dev.sh aide elastic -r ```
-
-#####2. if you want to build `pam` image using local source and `elastic` image using public plugin source,  then run:
-
-``` bash  ./build_dev.sh elastic pam -s ```
-
-#####3. if you want to build `pam`, `eeasearch` and `elastic` image using local sources, then run:
-
-``` bash  ./build_dev.sh elastic pam eeasearch -s -r ``` 
-
-You can run the command using all the combinations of arguments as you need, the order is not relevant,
-but the optional flags should be __after__ the arguments. 
-
-Also the order of flags doesn't matter, if you choose to use both.
-
----
-> The system output will print a warning message when the arguments and options used are incompatible.
-
-#### 3.5 Run everything on your host
-
-``` bash
-cd ~/eea.es/eea.docker.searchservices/
-cp docker-compose.dev.yml.example docker-compose.dev.yml
-```
-
-Edit docker-compose.dev.yml to fit your test case. 
-
-Run ```docker-compose -f docker-compose.dev.yml up``` to start all services.
-
-Run ```docker-compose -f docker-compose.dev.yml run --rm eeasearch create_index``` to create the index for EEASearch
-
-Run ```docker-compose -f docker-compose.dev.yml run --rm pam create_index``` to create the index for PAM
-
-Run ```docker-compose -f docker-compose.dev.yml run --rm aide create_index``` to create the index for AIDE
-
-Wait a bit and go to http://localhost:3000, http://localhost:3010 and http://localhost:3020 then make yourself a coffee, everything works now.
+Run ```docker-compose -f docker-compose-dev.yml run --rm aide create_index``` to create the index for AIDE
 
 ## 4. Publishing changes and updating Docker Registry images
 
