@@ -43,7 +43,7 @@ aide:
   extends:
     file: docker-compose-base.yml
     service: aide
-  build: ./eea.docker.eeasearch/
+  build: ./eea.docker.aide/
   volumes:
       - ./eea.docker.aide/app/:/code/:z
       - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
