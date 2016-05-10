@@ -6,6 +6,7 @@ eeasearch:
   volumes:
       - ./eea.docker.eeasearch/app/:/code/:z
       - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+      - ./eea.searchserver.js/index.js:/node_modules/eea-searchserver/index.js:z
   links:
       - esclient
   environment:
@@ -27,6 +28,7 @@ pam:
   volumes:
       - ./eea.docker.pam/app/:/code/:z
       - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+      - ./eea.searchserver.js/index.js:/node_modules/eea-searchserver/index.js:z
   links:
       - esclient
   environment:
@@ -47,6 +49,7 @@ aide:
   volumes:
       - ./eea.docker.aide/app/:/code/:z
       - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+      - ./eea.searchserver.js/index.js:/node_modules/eea-searchserver/index.js:z
   links:
       - esclient
   environment:
@@ -71,7 +74,30 @@ esbootstrap: #Demo app for using a simple esbootstrap application
   volumes:
       - ./eea.docker.esbootstrap/app/:/code/:z
       - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+      - ./eea.searchserver.js/index.js:/node_modules/eea-searchserver/index.js:z
       - ./eea.docker.esbootstrap/app/config/:/code/config/:z #use the config files from the eea.docker.esbootstrap/app/config folder
+  entrypoint:
+      - /node_modules/.bin/nodemon
+      - --watch
+      - code/
+      - /code/app.js
+  command:
+      - runserver
+
+esbootstrap_rdf: #Demo app for using a simple esbootstrap application with rdf indexing
+  build: ./eea.docker.esbootstrap/
+  links:
+      - esclient
+  ports:
+      - 3040:3000 # Take up host 3030 port for demo
+  environment:
+      - elastic_host=esclient
+      - AUTO_INDEXING=false
+  volumes:
+      - ./eea.docker.esbootstrap/app/:/code/:z
+      - ./eea.searchserver.js/lib/:/node_modules/eea-searchserver/lib/:z
+      - ./eea.searchserver.js/index.js:/node_modules/eea-searchserver/index.js:z
+      - ./eea.docker.esbootstrap/app/config_rdf/:/code/config/:z #use the config files from the eea.docker.esbootstrap/app/config folder
   entrypoint:
       - /node_modules/.bin/nodemon
       - --watch
