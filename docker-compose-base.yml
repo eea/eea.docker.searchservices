@@ -20,7 +20,7 @@ loadbalancer:
   - eeasearch:eeasearch
 
 eeasearch:
-    image: eeacms/eeasearch:v1.9
+    image: eeacms/eeasearch:v1.10
     restart: always
     ports:
         - 3000:3000
@@ -34,7 +34,7 @@ eeasearch:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
 pam:
-    image: eeacms/pam:v2.9
+    image: eeacms/pam:v2.10
     restart: always
     ports:
         - 3010:3000 # Take up host 3010 port, can be removed if you use the loadbalancer
@@ -47,7 +47,7 @@ pam:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
 aide:
-    image: eeacms/aide:v1.0-rc11
+    image: eeacms/aide:v1.0-rc12
     restart: always
     ports:
         - 3020:3000 # Take up host 3020 port
