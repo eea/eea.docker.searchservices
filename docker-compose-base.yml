@@ -47,7 +47,7 @@ pam:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
 aide:
-    image: eeacms/aide:v1.0-rc12
+    image: eeacms/aide:v1.0
     restart: always
     ports:
         - 3020:3000 # Take up host 3020 port
@@ -55,8 +55,7 @@ aide:
         - /code
     environment:
         - elastic_host=esclient
-        - SYNC_CRONTAB=0 4 * * * # Sync every 30 minutes
-        - VERSION_INFO=eeacms/aide:v1.0-rc11
+        - VERSION_INFO=eeacms/aide:v1.0
     labels:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
