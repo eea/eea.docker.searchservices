@@ -20,7 +20,7 @@ loadbalancer:
   - eeasearch:eeasearch
 
 eeasearch:
-    image: eeacms/eeasearch:v1.10
+    image: eeacms/eeasearch:v1.11
     restart: always
     ports:
         - 3000:3000
@@ -29,12 +29,12 @@ eeasearch:
     environment:
         - elastic_host=esclient
         - SYNC_CRONTAB=30 * * * * # Sync every 30 minutes
-        - VERSION_INFO=eeacms/eeasearch:v1.9
+        - VERSION_INFO=eeacms/eeasearch:v1.11
     labels:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
 pam:
-    image: eeacms/pam:v2.10
+    image: eeacms/pam:v2.11
     restart: always
     ports:
         - 3010:3000 # Take up host 3010 port, can be removed if you use the loadbalancer
@@ -42,12 +42,12 @@ pam:
         - /code
     environment:
         - elastic_host=esclient
-        - VERSION_INFO=eeacms/pam:v2.9
+        - VERSION_INFO=eeacms/pam:v2.11
     labels:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
 aide:
-    image: eeacms/aide:v1.0
+    image: eeacms/aide:v1.1
     restart: always
     ports:
         - 3020:3000 # Take up host 3020 port
@@ -55,7 +55,7 @@ aide:
         - /code
     environment:
         - elastic_host=esclient
-        - VERSION_INFO=eeacms/aide:v1.0
+        - VERSION_INFO=eeacms/aide:v1.1
     labels:
         io.rancher.scheduler.affinity:host_label: elastic=yes
 
