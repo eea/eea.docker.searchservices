@@ -310,13 +310,8 @@ before publishing anything.
 
 First, you need to publish the new version of the package.
 * Open package.json and increment the version
-* Make sure you can publish to [the npm package](https://www.npmjs.com/package/eea-searchserver)
- * Contact @demarant or @mihaibivol to add you as a contributor it's the first time publishing
-* Run `npm register` and register with your credentials
-* Run `npm publish` and make sure that no error was encountered
 * Commit your changes
-
-> ```npm publish``` may fail if you are using an older version. Run ```npm install npm``` to upgrade.
+* Commit a new tag
 
 This repository will not automatically build the eeacms/eeasearch (and other apps) Docker images.
 * Go to https://registry.hub.docker.com/u/eeacms/eeasearch/ and trigger a build.
