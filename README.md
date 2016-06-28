@@ -214,22 +214,6 @@ Maintaining a more complex ElasticSearch Cluster means distributing it over more
 careful operations for scaling so data is not lost.
 __Just don't do docker scale over elastic nodes.__
 
-#### 2.6 Apache/nginx configuration
-If the application is mapped under a path like: /data-and-maps/<node-app> it needs to be redirected to /data-and-maps/<node-app>/
-
- * Apache:
-	```
-	RewriteCond %{REQUEST_URI} data-and-maps/<node-app>$
-	RewriteRule ^(.*[^/])$ $1/ [L,R=301]
-	```
-
- * nginx:
-	```
-	location /data-and-maps/<node-app>/ {
-		proxy_pass http://hostRunningNODEAPPContainer:3000/
-	}
-	```
-
 #### 2.7 Deployment with Rancher
 
 The provided docker-compose-prod.yml in this repo is already configured to run within [Rancher PaaS](http://rancher.com/rancher/).
