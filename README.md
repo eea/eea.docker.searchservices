@@ -1,6 +1,8 @@
 # eea.docker.searchservices
 ElasticSearch + Facetview complete Docker Stack Orchestration
 
+**This repo is DEPRECATED**: We now deploy via [EEA Rancher catalog templates](https://github.com/eea/eea.rancher.catalog/tree/master/templates).
+
 ### 1. Components
 
 __1.1 eeasearch__
